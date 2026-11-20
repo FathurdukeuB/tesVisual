@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konsep 3: SkinMatch | Presentasi Interaktif BMC Dies Natalis STIS 68</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #db2777;
+      --primary-dark: #831843;
+      --primary-light: #f472b6;
+      --accent: #fbbf24;
+      --accent-soft: rgba(251, 191, 36, 0.15);
+      --bg-dark: #180912;
+      --bg-card: #2a101f;
+      --bg-card-hover: #3b182d;
+      --text-light: #fdf2f8;
+      --text-muted: #f472b6;
+      --text-sub: #fbcfe8;
+      --border: rgba(219, 39, 119, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 15% 20%, rgba(219, 39, 119, 0.22) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 75%, rgba(168, 85, 247, 0.15) 0%, transparent 45%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1.8rem;
+      background: rgba(24, 9, 18, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-hub {
+      text-decoration: none;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .back-hub:hover { background: var(--primary); color: #fff; }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .badge-code {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .view-toggle {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text-light);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .view-toggle:hover { background: rgba(255, 255, 255, 0.15); }
+
+    .ctrl-btn {
+      background: var(--primary);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .ctrl-btn:hover { background: var(--primary-light); transform: scale(1.05); }
+    .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .slide-indicator {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      min-width: 85px;
+      text-align: center;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 54px;
+      z-index: 99;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #a855f7);
+      width: 11.1%;
+      transition: width 0.3s ease;
+    }
+
+    .deck-viewport {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      min-height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.8rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      animation: slideIn 0.35s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide.active { display: block; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .slide-step {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    .slide-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.1rem;
+      color: #fff;
+      margin-top: 4px;
+    }
+    .slide-tag {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    /* Slide 1 - Cover */
+    .cover-hero { text-align: center; padding: 2.5rem 1rem; }
+    .cover-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(219, 39, 119, 0.2);
+      border: 1px solid var(--primary-light);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #fbcfe8;
+      margin-bottom: 1.5rem;
+    }
+    .cover-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+      background: linear-gradient(135deg, #fdf2f8 20%, #f472b6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cover-tagline {
+      font-size: 1.35rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .cover-desc {
+      max-width: 800px;
+      margin: 0 auto 2.5rem;
+      font-size: 1.05rem;
+      color: #fce7f3;
+      line-height: 1.65;
+    }
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .meta-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+    }
+    .meta-box h4 { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+    .meta-box p { font-size: 0.95rem; font-weight: 600; color: #fff; }
+
+    .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+    .card-panel {
+      background: rgba(24, 9, 18, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .card-panel h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-panel p, .card-panel li {
+      font-size: 0.92rem;
+      color: #fbcfe8;
+      margin-bottom: 0.6rem;
+    }
+    ul.bullet-list { padding-left: 1.2rem; }
+    ul.bullet-list li { margin-bottom: 0.5rem; }
+
+    .stat-callout {
+      background: linear-gradient(135deg, rgba(219, 39, 119, 0.25), rgba(131, 24, 67, 0.4));
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-big {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #f472b6;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-caption { font-size: 0.95rem; color: #fdf2f8; font-weight: 500; }
+    .stat-source { font-size: 0.78rem; color: var(--text-sub); margin-top: 4px; }
+
+    /* 9-Block BMC Grid */
+    .bmc-grid-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .bmc-cell {
+      background: rgba(42, 16, 31, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .bmc-cell:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+    .bmc-cell.active-cell {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    .cell-partners { grid-column: 1 / 2; grid-row: 1 / 3; }
+    .cell-activities { grid-column: 2 / 3; grid-row: 1 / 2; }
+    .cell-resources { grid-column: 2 / 3; grid-row: 2 / 3; }
+    .cell-value { grid-column: 3 / 4; grid-row: 1 / 3; }
+    .cell-relations { grid-column: 4 / 5; grid-row: 1 / 2; }
+    .cell-channels { grid-column: 4 / 5; grid-row: 2 / 3; }
+    .cell-segments { grid-column: 5 / 6; grid-row: 1 / 3; }
+    .cell-cost { grid-column: 1 / 4; grid-row: 3 / 4; }
+    .cell-revenue { grid-column: 4 / 6; grid-row: 3 / 4; }
+
+    .bmc-num {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .bmc-cell-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .bmc-preview-list { font-size: 0.8rem; color: #fbcfe8; padding-left: 1rem; }
+    .bmc-preview-list li { margin-bottom: 3px; }
+
+    .bmc-detail-box {
+      margin-top: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      background: rgba(219, 39, 119, 0.15);
+      border: 1px solid var(--primary-light);
+      border-radius: 12px;
+      display: none;
+    }
+    .bmc-detail-box.show { display: block; animation: slideIn 0.2s ease-out; }
+    .bmc-detail-box h4 { color: #fff; margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif; }
+    .bmc-detail-box p { font-size: 0.92rem; color: #fdf2f8; }
+
+    /* Interactive Screener */
+    .sim-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 1.8rem;
+      border: 1px solid var(--border);
+    }
+    .filter-group { margin-bottom: 1rem; }
+    .filter-group label { display: block; font-size: 0.88rem; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
+    .filter-select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #180912;
+      border: 1px solid var(--border);
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(219, 39, 119, 0.25);
+      border: 1px solid var(--primary-light);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+    .tag-chip.active { background: var(--primary); color: #fff; }
+
+    .product-match-card {
+      background: rgba(42, 16, 31, 0.9);
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    body.doc-mode .slide { display: block !important; margin-bottom: 3rem; }
+    body.doc-mode .deck-controls { display: none; }
+    body.doc-mode .progress-bar-container { display: none; }
+
+    @media (max-width: 900px) {
+      .grid-2col, .grid-3col, .sim-container { grid-template-columns: 1fr; }
+      .bmc-grid-container { display: flex; flex-direction: column; }
+      .cover-title { font-size: 2.4rem; }
+      .slide { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <header class="top-bar">
+    <div class="brand-group">
+      <a href="index.html" class="back-hub">← Hub Portal</a>
+      <span class="badge-code">C1 • KESEHATAN & KECANTIKAN</span>
+      <span class="brand-title">SkinMatch / BeautyMatch</span>
+      <a href="konsep-umkm-insight.html" class="back-hub" style="background:rgba(10,117,100,0.2); border-color:#db2777; color:#f472b6; font-size:0.8rem;">📊 Buka UMKM Insight</a>
+    </div>
+    
+    <div class="deck-controls">
+      <button class="view-toggle" id="viewToggleBtn" onclick="toggleViewMode()">📄 Mode Dokumen</button>
+      <button class="ctrl-btn" id="prevBtn" onclick="prevSlide()" title="Slide Sebelumnya">‹</button>
+      <div class="slide-indicator" id="slideIndicator">Slide 1 / 9</div>
+      <button class="ctrl-btn" id="nextBtn" onclick="nextSlide()" title="Slide Berikutnya">›</button>
+    </div>
+  </header>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <main class="deck-viewport">
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide active" id="slide-1">
+      <div class="cover-hero">
+        <div class="cover-pill">✨ Subtema 3: Kesehatan & Kecantikan • Dies Natalis ke-68 Polstat STIS</div>
+        <h1 class="cover-title">SkinMatch</h1>
+        <div class="cover-tagline">“Pilih Produk dengan Informasi yang Lebih Tepat.”</div>
+        <p class="cover-desc">
+          Platform kurasi & verifikasi komparatif produk kecantikan berbasis data komposisi (ingredient transparency), 
+          integrasi izin edar resmi BPOM, preferensi sensitivitas pengguna, dan rentang anggaran. Menolak diagnosis medis palsu, mengedepankan literasi bahan objektif.
+        </p>
+
+        <div class="cover-meta-grid">
+          <div class="meta-box">
+            <h4>Kode Masalah</h4>
+            <p>C1 – Konsumen Sulit Memilih Produk</p>
+          </div>
+          <div class="meta-box">
+            <h4>Target Pasar</h4>
+            <p>Konsumen Pemula & Brand Lokal BPOM</p>
+          </div>
+          <div class="meta-box">
+            <h4>Basis Data</h4>
+            <p>API Cek Produk BPOM & Label INCI</p>
+          </div>
+          <div class="meta-box">
+            <h4>Prinsip Kunci</h4>
+            <p>Non-Medis, Transparan, Bebas Bias</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: URGENSI MASALAH KONSUMEN -->
+    <section class="slide" id="slide-2">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 01 • Eksplorasi Masalah</span>
+          <h2 class="slide-title">Banjir Produk, Klaim Marketing Berlebih, & Kebingungan Konsumen</h2>
+        </div>
+        <span class="slide-tag">Consumer Pain Points</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>👩‍🦰 Siapa Calon Konsumen Utama?</h3>
+          <ul class="bullet-list">
+            <li><strong>Pengguna Pemula (Gen-Z & Mahasiswa):</strong> Memiliki anggaran terbatas, mudah terpapar tren TikTok/IG, rentan salah beli skincare pertama.</li>
+            <li><strong>Konsumen Kulit Sensitif / Reaktif:</strong> Perlu menghindari bahan pemicu alergi tertentu (alkohol denat, pewangi sintetis, sulfat, essential oil).</li>
+            <li><strong>Smart Buyers (Value Seekers):</strong> Ingin membandingkan harga per ml antara produk lokal vs impor dengan bahan aktif serupa.</li>
+            <li><strong>Brand Lokal Berkualitas:</strong> Membutuhkan saluran eksposur berbasis kecocokan bahan tanpa harus bakar uang endorse selebritas.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>⚠️ Masalah Nyata di Lapangan</h3>
+          <ul class="bullet-list">
+            <li><strong>Klaim Pemasaran Sering Bias:</strong> Kata "mencerahkan instan" atau "bebas jerawat permanen" mengaburkan fakta komposisi sebenarnya.</li>
+            <li><strong>Istilah Ilmiah Membingungkan:</strong> Konsumen awam kesulitan membaca daftar 30 bahan INCI berhuruf kecil di botol produk.</li>
+            <li><strong>Risiko Produk Ilegal / Repackage:</strong> Maraknya kosmetik tanpa nomor notifikasi izin edar BPOM yang valid.</li>
+            <li><strong>Review Belum Tentu Cocok:</strong> Produk yang mendapat rating 5 bintang dari influencer belum tentu cocok untuk tipe kulit konsumen.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Rumusan Masalah Utama:</strong> “Bagaimana membantu konsumen menyaring dan membandingkan produk kecantikan berdasarkan preferensi, anggaran, dan komposisi yang terverifikasi legalitas BPOM secara transparan tanpa klaim diagnosis semu?”
+      </div>
+    </section>
+
+    <!-- SLIDE 3: DATA KUANTITATIF & STATISTIKA SURVEI -->
+    <section class="slide" id="slide-3">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 02 • Bukti Data</span>
+          <h2 class="slide-title">Basis Data Legalitas BPOM & Statistik Preferensi</h2>
+        </div>
+        <span class="slide-tag">Cek Produk BPOM & Analisis Segmentasi</span>
+      </div>
+
+      <div class="grid-2col">
+        <div>
+          <div class="stat-callout">
+            <div class="stat-big">100% BPOM</div>
+            <div class="stat-caption">Verifikasi nomor izin edar (NA/NB/NC) dan status masa berlaku langsung dari portal Cek Produk BPOM.</div>
+            <div class="stat-source">Sumber: Pangkalan Data Notifikasi Kosmetika – BPOM RI (cekbpom.pom.go.id)</div>
+          </div>
+
+          <div class="card-panel">
+            <h3>🔬 Pemisahan Fakta vs Klaim</h3>
+            <p>SkinMatch membedakan secara tegas antara: <strong>(1) Label Komposisi Faktual</strong>, <strong>(2) Status Registrasi BPOM</strong>, dan <strong>(3) Klaim Komersial Produsen</strong>.</p>
+            <p style="font-size:0.85rem; color:#fde047;">*Catatan etis: Terdaftar BPOM adalah syarat legalitas minimal, bukan jaminan bahwa produk 100% cocok untuk setiap individu tanpa reaksi alergi.</p>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <h3>📐 Metode Statistik & Rekomendasi</h3>
+          <ul class="bullet-list">
+            <li><strong>Content-Based Filtering Transparan:</strong> Menghitung skor kemiripan (Cosine Similarity) antara profil bahan yang disukai konsumen dan matriks bahan produk:
+              <br><code style="color:#fde047;">MatchScore = (Vektor_Preferensi · Vektor_Bahan) / (||P|| × ||B||)</code>
+            </li>
+            <li><strong>Segmentasi Konsumen (Cluster Analysis):</strong> Mengelompokkan responden survei primer berdasarkan anggaran bulanan (budget tier) dan toleransi bahan aktif.</li>
+            <li><strong>Pengumpulan Data Primer:</strong> Survei WTP, kepuasan hasil rekomendasi, serta alasan mengapa konsumen menghentikan pemakaian produk tertentu.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: SOLUSI PRODUK: 6 FITUR UNGGULAN -->
+    <section class="slide" id="slide-4">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 03 • Arsitektur Fitur</span>
+          <h2 class="slide-title">Fitur Inti SkinMatch: Edukatif & Objektif</h2>
+        </div>
+        <span class="slide-tag">Feature Set</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+          <h3>1. Filter Preferensi Mandiri</h3>
+          <p>Pengguna memilih kriteria: jenis tekstur (gel/krim), rentang harga (misal: <Rp75rb), dan bahan yang ingin dihindari (misal: fragrance-free).</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+          <h3>2. Ingredient Explainer</h3>
+          <p>Kamus bahan berbahasa Indonesia santun menjelaskan fungsi umum (misal: Niacinamide untuk hidrasi & sebum) beserta catatan kemungkinan iritasi.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛡️</div>
+          <h3>3. Verifikasi Izin BPOM</h3>
+          <p>Tombol satu-klik verifikasi langsung ke database BPOM untuk memastikan nomor notifikasi legal dan produsen terdaftar sah.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚖️</div>
+          <h3>4. Side-by-Side Product Comparison</h3>
+          <p>Membandingkan 2 atau 3 produk sekaligus: perbandingan harga per mililiter, urutan konsentrasi bahan, dan kesesuaian anggaran pengguna.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
+          <h3>5. Ulasan Terstruktur Tanpa Klaim Ajaib</h3>
+          <p>Review komunitas distandarisasi: durasi pemakaian (minggu/bulan), tipe kulit reviewer, dan reaksi pertama tanpa testimoni melebih-lebihkan.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🚫</div>
+          <h3>6. Batasan Etika Medis Tegas</h3>
+          <p>Platform tidak menyediakan diagnosis penyakit kulit (seperti acne fulminans atau dermatitis kronis) dan selalu menyarankan konsultasi Sp.KK/DVE.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: KOMPETITOR & CELAH DIFERENSIASI -->
+    <section class="slide" id="slide-5">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 04 • Lanskap Kompetisi</span>
+          <h2 class="slide-title">Perbandingan Kompetitor & Unfair Advantage</h2>
+        </div>
+        <span class="slide-tag">Market Differentiation</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>🏢 Pemain Global & Aplikasi yang Ada</h3>
+          <ul class="bullet-list">
+            <li><strong>BPOM Mobile:</strong> Resmi dan valid, namun antarmuka kaku, tidak ada penjelasan fungsi bahan, dan tidak memiliki fitur perbandingan produk.</li>
+            <li><strong>SKINS & SkinSort:</strong> Aplikasi luar negeri yang database produknya didominasi brand Barat/Korea, sering tidak mengenali skincare lokal Indonesia.</li>
+            <li><strong>INCI Beauty:</strong> Analisis komposisi sangat mendalam namun sistem scoring bahaya (hazard score) sering menimbulkan kepanikan berlebih tanpa dasar regulasi lokal.</li>
+            <li><strong>E-Commerce Marketplace:</strong> Dipenuhi ulasan bintang 5 instan ("pengiriman cepat") bukan review formulasi mendalam.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>🎯 4 Pilar Celah SkinMatch</h3>
+          <ul class="bullet-list">
+            <li><strong>Kurasi Spesifik Produk Lokal Indonesia:</strong> Meliputi ratusan brand lokal terdaftar BPOM yang sering tidak ada di aplikasi global.</li>
+            <li><strong>Transparansi "Alasan Kecocokan":</strong> Sistem menjabarkan mengapa sebuah produk direkomendasikan (misal: "Cocok karena bebas alkohol dan <Rp100rb").</li>
+            <li><strong>Independensi Rekomendasi:</strong> Peringkat produk murni dihitung dari kecocokan filter pengguna, bukan karena brand membayar uang iklan ranking.</li>
+            <li><strong>Privasi Data Pengguna Terlindungi:</strong> Preferensi kulit pengguna tidak dijual ke pihak ketiga.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: MODEL MONETISASI & HIPOTESIS WTP -->
+    <section class="slide" id="slide-6">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 05 • Finansial</span>
+          <h2 class="slide-title">Model Pendapatan B2C & B2B Terbuka</h2>
+        </div>
+        <span class="slide-tag">Revenue Architecture</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel" style="border-top: 4px solid #f472b6;">
+          <h4 style="color:#f472b6; text-transform:uppercase; font-size:0.8rem;">Tier 1 – B2C Free</h4>
+          <h3 style="margin: 0.5rem 0;">Pencarian & Verifikasi</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Gratis <span style="font-size:0.85rem; color:#fbcfe8;">/selamanya</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Pencarian database produk BPOM</li>
+            <li>Kamus bahan INCI dasar</li>
+            <li>Filter preferensi dasar</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid var(--accent); background: rgba(251, 191, 36, 0.08);">
+          <h4 style="color:var(--accent); text-transform:uppercase; font-size:0.8rem;">Tier 2 – B2C Premium</h4>
+          <h3 style="margin: 0.5rem 0;">Smart Matchmaker</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:var(--accent); margin-bottom:0.5rem;">Rp15rb – Rp25rb <span style="font-size:0.85rem; color:#fbcfe8;">/bulan</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Perbandingan formulasi multi-produk tak terbatas</li>
+            <li>Riwayat alergi & filter alergen berlapis</li>
+            <li>Alert perubahan formulasi oleh brand</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid #a855f7;">
+          <h4 style="color:#a855f7; text-transform:uppercase; font-size:0.8rem;">Tier 3 – B2B Analytics</h4>
+          <h3 style="margin: 0.5rem 0;">Brand & Retailer Trends</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Rp750rb – Rp3jt <span style="font-size:0.85rem; color:#fbcfe8;">/bulan</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Dashboard tren preferensi konsumen teragregasi</li>
+            <li>Analisis bahan yang paling sering dicari/dihindari</li>
+            <li>Link afiliasi resmi berlabel transparan</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Etika Komisi Afiliasi:</strong> Tautan pembelian ke official store e-commerce hanya menghasilkan komisi rujukan (affiliate) jika pengguna memilih membeli, dengan <strong>label penanda yang jelas</strong> tanpa mengubah algoritma rekomendasi.
+      </div>
+    </section>
+
+    <!-- SLIDE 7: BUSINESS MODEL CANVAS (9 ELEMEN) -->
+    <section class="slide" id="slide-7">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 06 • BMC Komprehensif</span>
+          <h2 class="slide-title">9 Elemen Business Model Canvas (SkinMatch)</h2>
+        </div>
+        <span class="slide-tag">Klik kotak untuk detail</span>
+      </div>
+
+      <div class="bmc-grid-container">
+        <div class="bmc-cell cell-partners" onclick="showBmcDetail('partners')">
+          <span class="bmc-num">08</span>
+          <div class="bmc-cell-title">Key Partners</div>
+          <ul class="bmc-preview-list">
+            <li>Database Notifikasi BPOM</li>
+            <li>Brand Lokal Skincare Sah</li>
+            <li>Konsultan Dermatologi/Apoteker</li>
+            <li>Komunitas Beauty Enthusiast</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-activities" onclick="showBmcDetail('activities')">
+          <span class="bmc-num">07</span>
+          <div class="bmc-cell-title">Key Activities</div>
+          <ul class="bmc-preview-list">
+            <li>Kurasi & pembaruan katalog produk</li>
+            <li>Validasi status nomor registrasi BPOM</li>
+            <li>Penyusunan edukasi bahan ilmiah</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-resources" onclick="showBmcDetail('resources')">
+          <span class="bmc-num">06</span>
+          <div class="bmc-cell-title">Key Resources</div>
+          <ul class="bmc-preview-list">
+            <li>Database terstruktur komposisi INCI</li>
+            <li>Algoritma filter preferensi transparan</li>
+            <li>Tim analis data & farmasi</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-value" onclick="showBmcDetail('value')">
+          <span class="bmc-num">02</span>
+          <div class="bmc-cell-title">Value Propositions</div>
+          <ul class="bmc-preview-list">
+            <li>Penyaringan produk transparan & netral</li>
+            <li>Verifikasi legalitas satu-klik BPOM</li>
+            <li>Perbandingan harga per ml & bahan</li>
+            <li>Edukasi bahan tanpa istilah rumit</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-relations" onclick="showBmcDetail('relations')">
+          <span class="bmc-num">04</span>
+          <div class="bmc-cell-title">Customer Relations</div>
+          <ul class="bmc-preview-list">
+            <li>Kuis preferensi mandiri interaktif</li>
+            <li>Transparansi sumber rekomendasi</li>
+            <li>Forum diskusi komunitas terkurasi</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-channels" onclick="showBmcDetail('channels')">
+          <span class="bmc-num">03</span>
+          <div class="bmc-cell-title">Channels</div>
+          <ul class="bmc-preview-list">
+            <li>Aplikasi Web & Mobile App</li>
+            <li>Media sosial edukatif (TikTok/IG)</li>
+            <li>Kolaborasi kreator edukasi sains</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-segments" onclick="showBmcDetail('segments')">
+          <span class="bmc-num">01</span>
+          <div class="bmc-cell-title">Customer Segments</div>
+          <ul class="bmc-preview-list">
+            <li>Konsumen pemula & Gen-Z</li>
+            <li>Konsumen dengan preferensi alergen</li>
+            <li>Brand skincare lokal terdaftar BPOM</li>
+            <li>Retailer kecantikan</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-cost" onclick="showBmcDetail('cost')">
+          <span class="bmc-num">09</span>
+          <div class="bmc-cell-title">Cost Structure</div>
+          <ul class="bmc-preview-list">
+            <li>Pemeliharaan database & server cloud | Honor tim kurasi data bahan & farmasi | Pemasaran konten edukasi digital | Keamanan data pengguna</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-revenue" onclick="showBmcDetail('revenue')">
+          <span class="bmc-num">05</span>
+          <div class="bmc-cell-title">Revenue Streams</div>
+          <ul class="bmc-preview-list">
+            <li>Langganan B2C fitur perbandingan mendalam (Rp15k-25k/bln) | Langganan B2B tren agregat untuk brand lokal | Komisi afiliasi e-commerce transparan</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bmc-detail-box" id="bmcDetailBox">
+        <h4 id="detailBoxTitle">Detail Elemen BMC</h4>
+        <p id="detailBoxContent">Pilih salah satu kotak di atas untuk melihat justifikasi kuantitatif dan penjelasan mendalam.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: SCREENER DEMO INTERAKTIF -->
+    <section class="slide" id="slide-8">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 07 • Lab Simulasi</span>
+          <h2 class="slide-title">Simulasi Mesin Pencocok Skincare Transparan</h2>
+        </div>
+        <span class="slide-tag">Interactive Matching Engine</span>
+      </div>
+
+      <div class="sim-container">
+        <div class="sim-controls">
+          <h3 style="color:#fff;">Filter Preferensi Pengguna</h3>
+
+          <div class="filter-group">
+            <label>Rentang Anggaran Maksimal:</label>
+            <select class="filter-select" id="selBudget" onchange="runMatchSim()">
+              <option value="50000">Di bawah Rp 50.000 (Pelajar / Mahasiswa)</option>
+              <option value="100000" selected>Di bawah Rp 100.000 (Ekonomis)</option>
+              <option value="200000">Di bawah Rp 200.000 (Menengah)</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label>Kebutuhan Bahan Utama yang Dicari:</label>
+            <div id="chipsActive">
+              <span class="tag-chip active" onclick="toggleChip(this)">Niacinamide</span>
+              <span class="tag-chip" onclick="toggleChip(this)">Centella Asiatica</span>
+              <span class="tag-chip active" onclick="toggleChip(this)">Ceramide</span>
+              <span class="tag-chip" onclick="toggleChip(this)">Hyaluronic Acid</span>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label>Bahan yang Ingin Dihindari (Sensitivitas):</label>
+            <div>
+              <label style="display:inline-flex; align-items:center; gap:6px; margin-right:15px; font-size:0.85rem;">
+                <input type="checkbox" id="chkAlcohol" checked onchange="runMatchSim()"> Bebas Alkohol Denat
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:6px; font-size:0.85rem;">
+                <input type="checkbox" id="chkFragrance" checked onchange="runMatchSim()"> Bebas Fragrance
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-result" style="justify-content: flex-start; overflow-y: auto; max-height: 380px;">
+          <span style="font-size:0.85rem; color:var(--text-sub); text-transform:uppercase; margin-bottom:10px;">Hasil Pencocokan Transparan</span>
+
+          <div class="product-match-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:#fff; font-size:1.05rem;" id="resProdName">Gel Moisturizer Ceramide Lokal</strong>
+              <span style="background:rgba(16,185,129,0.2); color:#34d399; font-size:0.75rem; padding:3px 8px; border-radius:4px; font-weight:700;">BPOM NA182301098xx</span>
+            </div>
+            <div style="font-size:0.9rem; color:var(--accent); margin:4px 0;" id="resProdPrice">Harga: Rp 79.000 (50ml) • Rp 1.580 / ml</div>
+            <p style="font-size:0.85rem; color:#fce7f3; margin-top:6px;" id="resProdMatchReason">
+              ✅ <strong>Alasan Cocok:</strong> Mengandung Ceramide & Niacinamide, bebas alkohol dan fragrance, serta berada di bawah anggaran Rp100.000.
+            </p>
+          </div>
+
+          <div style="font-size:0.8rem; color:#cbd5e1; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px;">
+            🛡️ <strong>Transparansi SkinMatch:</strong> Sistem tidak memberi skor bahaya subjektif. Seluruh data komposisi diverifikasi sesuai pendaftaran Cek Produk BPOM RI.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: RENCANA VALIDASI LAPANGAN -->
+    <section class="slide" id="slide-9">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah Terakhir • Rencana Aksi</span>
+          <h2 class="slide-title">Roadmap Validasi Lapangan Menuju Lomba BMC</h2>
+        </div>
+        <span class="slide-tag">Action Plan Polstat STIS</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 1</div>
+          <h3>Survei Konsumen Pemula (30–50 Responden)</h3>
+          <p>Kumpulkan data primer mahasiswa: berapa kali mereka salah membeli produk skincare dalam 6 bulan terakhir dan berapa rupiah kerugian yang timbul.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 2</div>
+          <h3>Validasi Wawancara Brand Lokal</h3>
+          <p>Wawancarai 2-3 pemilik brand skincare lokal independen: bagaimana kesulitan mereka menjangkau konsumen tanpa endorse jutaan rupiah.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 3</div>
+          <h3>Penyusunan Proposal BMC Final</h3>
+          <p>Lengkapi kanvas BMC dengan justifikasi kuantitatif survei preferensi dan metodologi algoritma content-based filtering.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem; text-align:center;">
+        <a href="konsep-4-wisataflow.html" class="back-hub" style="background:var(--primary); color:#fff; padding:10px 20px; font-size:0.95rem;">
+          Lanjut ke Konsep 4: WisataFlow (Pariwisata & Kreatif) →
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 9;
+
+    function showSlide(index) {
+      if (index < 1 || index > totalSlides) return;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide').forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+
+      document.getElementById('slideIndicator').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      document.getElementById('progressBar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      
+      document.getElementById('prevBtn').disabled = (currentSlide === 1);
+      document.getElementById('nextBtn').disabled = (currentSlide === totalSlides);
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextSlide() { if (currentSlide < totalSlides) showSlide(currentSlide + 1); }
+    function prevSlide() { if (currentSlide > 1) showSlide(currentSlide - 1); }
+
+    document.addEventListener('keydown', (e) => {
+      if (document.body.classList.contains('doc-mode')) return;
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); prevSlide(); }
+      else if (e.key === 'Home') showSlide(1);
+      else if (e.key === 'End') showSlide(totalSlides);
+    });
+
+    function toggleViewMode() {
+      document.body.classList.toggle('doc-mode');
+      const isDoc = document.body.classList.contains('doc-mode');
+      document.getElementById('viewToggleBtn').textContent = isDoc ? '🖥️ Mode Slide' : '📄 Mode Dokumen';
+    }
+
+    const bmcDetails = {
+      segments: {
+        title: "1. Customer Segments (Kuantitatif)",
+        content: "Konsumen kosmetik pemula usia 18–28 tahun (Gen-Z & Milenial) dengan pengeluaran skincare Rp50.000–Rp250.000/bulan, konsumen dengan kulit reaktif yang membutuhkan filter alergen ketat, serta brand kosmetika lokal bersertifikasi BPOM."
+      },
+      value: {
+        title: "2. Value Propositions",
+        content: "Penyaringan produk transparan berdasarkan komposisi dan anggaran tanpa diagnosis semu, validasi izin edar resmi BPOM secara instan, perbandingan rasio harga/volume (Rp/ml), dan kamus bahan objektif berbahasa Indonesia."
+      },
+      channels: {
+        title: "3. Channels",
+        content: "Aplikasi mobile dan web responsif (PWA), kanal edukasi media sosial (TikTok, Instagram reels sains kosmetik), serta tautan resmi e-commerce terverifikasi."
+      },
+      relations: {
+        title: "4. Customer Relationships",
+        content: "Kuis preferensi mandiri interaktif, transparansi alasan penentuan kecocokan bahan, review terstandarisasi, dan edukasi hak konsumen kosmetik aman."
+      },
+      revenue: {
+        title: "5. Revenue Streams",
+        content: "Langganan konsumen premium (Rp15.000–Rp25.000/bulan) untuk fitur perbandingan formula lanjutan, langganan analitik tren pasar bagi brand lokal, dan komisi afiliasi transparan berlabel sponsor."
+      },
+      resources: {
+        title: "6. Key Resources",
+        content: "Basis data komposisi INCI terverifikasi, koneksi portal Cek Produk BPOM, algoritma filter preferensi transparan, serta tim kurator sains kosmetik dan analis data."
+      },
+      activities: {
+        title: "7. Key Activities",
+        content: "Pembaruan berkala basis data produk lokal, verifikasi status notifikasi izin edar BPOM, pengembangan algoritma pencocokan preferensi, dan peninjauan literasi bahan bersama ahli farmasi."
+      },
+      partners: {
+        title: "8. Key Partners",
+        content: "Badan Pengawas Obat dan Makanan (BPOM) sebagai sumber rujukan legalitas, brand skincare lokal berizin sah, asosiasi apoteker/dermatolog mitra edukasi, dan platform e-commerce resmi."
+      },
+      cost: {
+        title: "9. Cost Structure",
+        content: "Infrastruktur cloud hosting & database terenkripsi, honor tim kurator data kosmetika, konsultasi regulasi dengan ahli farmasi/hukum, serta biaya pemasaran konten edukasi."
+      }
+    };
+
+    function showBmcDetail(key) {
+      document.querySelectorAll('.bmc-cell').forEach(c => c.classList.remove('active-cell'));
+      event.currentTarget.classList.add('active-cell');
+
+      const box = document.getElementById('bmcDetailBox');
+      const data = bmcDetails[key];
+      if (data) {
+        document.getElementById('detailBoxTitle').textContent = data.title;
+        document.getElementById('detailBoxContent').textContent = data.content;
+        box.classList.add('show');
+      }
+    }
+
+    function toggleChip(el) {
+      el.classList.toggle('active');
+      runMatchSim();
+    }
+
+    function runMatchSim() {
+      const budget = parseInt(document.getElementById('selBudget').value);
+      const noAlcohol = document.getElementById('chkAlcohol').checked;
+      const noFragrance = document.getElementById('chkFragrance').checked;
+
+      const activeChips = Array.from(document.querySelectorAll('#chipsActive .tag-chip.active')).map(c => c.textContent);
+
+      let pName = "Moisturizer Gel Barrier";
+      let pPrice = "Rp 79.000 (50ml)";
+      let bpom = "BPOM NA182301098xx";
+
+      if (budget < 60000) {
+        pName = "Gentle Cleanser Hydrating Mini";
+        pPrice = "Rp 45.000 (60ml)";
+        bpom = "BPOM NA182212045xx";
+      } else if (budget > 150000) {
+        pName = "Intensive Barrier Repair Serum";
+        pPrice = "Rp 149.000 (30ml)";
+        bpom = "BPOM NA182319033xx";
+      }
+
+      document.getElementById('resProdName').textContent = pName;
+      document.getElementById('resProdPrice').textContent = `Harga: ${pPrice} • Terdaftar ${bpom}`;
+
+      let matchReason = `✅ Cocok dengan anggaran (maks Rp${budget.toLocaleString('id-ID')}). `;
+      if (activeChips.length > 0) {
+        matchReason += `Mengandung bahan target: ${activeChips.join(', ')}. `;
+      }
+      if (noAlcohol) matchReason += `Bebas alkohol denat. `;
+      if (noFragrance) matchReason += `Bebas pewangi sintetis.`;
+
+      document.getElementById('resProdMatchReason').innerHTML = `<strong>Alasan Kecocokan:</strong> ${matchReason}`;
+    }
+
+    showSlide(1);
+    runMatchSim();
+  </script>
+</body>
+</html>

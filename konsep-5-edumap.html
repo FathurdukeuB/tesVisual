@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konsep 5: EduMap | Presentasi Interaktif BMC Dies Natalis STIS 68</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #312e81;
+      --primary-light: #818cf8;
+      --accent: #fbbf24;
+      --accent-soft: rgba(251, 191, 36, 0.15);
+      --bg-dark: #0b0f1e;
+      --bg-card: #151b36;
+      --bg-card-hover: #1e264c;
+      --text-light: #eef2ff;
+      --text-muted: #a5b4fc;
+      --text-sub: #c7d2fe;
+      --border: rgba(129, 140, 248, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.22) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 75%, rgba(67, 56, 202, 0.15) 0%, transparent 45%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1.8rem;
+      background: rgba(11, 15, 30, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-hub {
+      text-decoration: none;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .back-hub:hover { background: var(--primary); color: #fff; }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .badge-code {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .view-toggle {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text-light);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .view-toggle:hover { background: rgba(255, 255, 255, 0.15); }
+
+    .ctrl-btn {
+      background: var(--primary);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .ctrl-btn:hover { background: var(--primary-light); transform: scale(1.05); }
+    .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .slide-indicator {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      min-width: 85px;
+      text-align: center;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 54px;
+      z-index: 99;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #a855f7);
+      width: 11.1%;
+      transition: width 0.3s ease;
+    }
+
+    .deck-viewport {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      min-height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.8rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      animation: slideIn 0.35s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide.active { display: block; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .slide-step {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    .slide-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.1rem;
+      color: #fff;
+      margin-top: 4px;
+    }
+    .slide-tag {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    /* Slide 1 - Cover */
+    .cover-hero { text-align: center; padding: 2.5rem 1rem; }
+    .cover-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid var(--primary-light);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #c7d2fe;
+      margin-bottom: 1.5rem;
+    }
+    .cover-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+      background: linear-gradient(135deg, #eef2ff 20%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cover-tagline {
+      font-size: 1.35rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .cover-desc {
+      max-width: 800px;
+      margin: 0 auto 2.5rem;
+      font-size: 1.05rem;
+      color: #cbd5e1;
+      line-height: 1.65;
+    }
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .meta-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+    }
+    .meta-box h4 { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+    .meta-box p { font-size: 0.95rem; font-weight: 600; color: #fff; }
+
+    .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+    .card-panel {
+      background: rgba(11, 15, 30, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .card-panel h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-panel p, .card-panel li {
+      font-size: 0.92rem;
+      color: #c7d2fe;
+      margin-bottom: 0.6rem;
+    }
+    ul.bullet-list { padding-left: 1.2rem; }
+    ul.bullet-list li { margin-bottom: 0.5rem; }
+
+    .stat-callout {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(49, 46, 129, 0.4));
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-big {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #818cf8;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-caption { font-size: 0.95rem; color: #eef2ff; font-weight: 500; }
+    .stat-source { font-size: 0.78rem; color: var(--text-sub); margin-top: 4px; }
+
+    /* 9-Block BMC Grid */
+    .bmc-grid-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .bmc-cell {
+      background: rgba(21, 27, 54, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .bmc-cell:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+    .bmc-cell.active-cell {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    .cell-partners { grid-column: 1 / 2; grid-row: 1 / 3; }
+    .cell-activities { grid-column: 2 / 3; grid-row: 1 / 2; }
+    .cell-resources { grid-column: 2 / 3; grid-row: 2 / 3; }
+    .cell-value { grid-column: 3 / 4; grid-row: 1 / 3; }
+    .cell-relations { grid-column: 4 / 5; grid-row: 1 / 2; }
+    .cell-channels { grid-column: 4 / 5; grid-row: 2 / 3; }
+    .cell-segments { grid-column: 5 / 6; grid-row: 1 / 3; }
+    .cell-cost { grid-column: 1 / 4; grid-row: 3 / 4; }
+    .cell-revenue { grid-column: 4 / 6; grid-row: 3 / 4; }
+
+    .bmc-num {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .bmc-cell-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .bmc-preview-list { font-size: 0.8rem; color: #c7d2fe; padding-left: 1rem; }
+    .bmc-preview-list li { margin-bottom: 3px; }
+
+    .bmc-detail-box {
+      margin-top: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid var(--primary-light);
+      border-radius: 12px;
+      display: none;
+    }
+    .bmc-detail-box.show { display: block; animation: slideIn 0.2s ease-out; }
+    .bmc-detail-box h4 { color: #fff; margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif; }
+    .bmc-detail-box p { font-size: 0.92rem; color: #eef2ff; }
+
+    /* Interactive Simulator */
+    .sim-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 1.8rem;
+      border: 1px solid var(--border);
+    }
+    .sim-controls { display: flex; flex-direction: column; gap: 1.2rem; }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .slider-input {
+      width: 100%;
+      height: 8px;
+      background: #312e81;
+      border-radius: 5px;
+      outline: none;
+      accent-color: var(--primary-light);
+    }
+    .sim-result {
+      background: rgba(21, 27, 54, 0.9);
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .sim-res-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0.5rem 0;
+    }
+
+    body.doc-mode .slide { display: block !important; margin-bottom: 3rem; }
+    body.doc-mode .deck-controls { display: none; }
+    body.doc-mode .progress-bar-container { display: none; }
+
+    @media (max-width: 900px) {
+      .grid-2col, .grid-3col, .sim-container { grid-template-columns: 1fr; }
+      .bmc-grid-container { display: flex; flex-direction: column; }
+      .cover-title { font-size: 2.4rem; }
+      .slide { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <header class="top-bar">
+    <div class="brand-group">
+      <a href="index.html" class="back-hub">← Hub Portal</a>
+      <span class="badge-code">E3 • PENDIDIKAN & KEUANGAN</span>
+      <span class="brand-title">EduMap / EduEquity</span>
+      <a href="konsep-umkm-insight.html" class="back-hub" style="background:rgba(10,117,100,0.2); border-color:#6366f1; color:#818cf8; font-size:0.8rem;">📊 Buka UMKM Insight</a>
+    </div>
+    
+    <div class="deck-controls">
+      <button class="view-toggle" id="viewToggleBtn" onclick="toggleViewMode()">📄 Mode Dokumen</button>
+      <button class="ctrl-btn" id="prevBtn" onclick="prevSlide()" title="Slide Sebelumnya">‹</button>
+      <div class="slide-indicator" id="slideIndicator">Slide 1 / 9</div>
+      <button class="ctrl-btn" id="nextBtn" onclick="nextSlide()" title="Slide Berikutnya">›</button>
+    </div>
+  </header>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <main class="deck-viewport">
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide active" id="slide-1">
+      <div class="cover-hero">
+        <div class="cover-pill">🎓 Subtema 5: Teknologi Pendidikan & Keuangan • Dies Natalis ke-68 Polstat STIS</div>
+        <h1 class="cover-title">EduMap</h1>
+        <div class="cover-tagline">“Data untuk Pendidikan yang Lebih Merata.”</div>
+        <p class="cover-desc">
+          Platform analitik spasial (GIS) & Decision Support System untuk Pemerintah Daerah, Dinas Pendidikan, dan Lembaga Donor/CSR.
+          Menggabungkan indikator multi-sumber (Rapor Pendidikan, Neraca Pendidikan Daerah, dan Statistik BPS) guna memetakan kesenjangan mutu layanan sekolah serta mensimulasikan anggaran intervensi prioritas.
+        </p>
+
+        <div class="cover-meta-grid">
+          <div class="meta-box">
+            <h4>Kode Masalah</h4>
+            <p>E3 – Kesenjangan Pendidikan Antarwilayah</p>
+          </div>
+          <div class="meta-box">
+            <h4>Target Utama</h4>
+            <p>Dinas Pendidikan Pemda & Lembaga Donor/CSR</p>
+          </div>
+          <div class="meta-box">
+            <h4>Basis Data</h4>
+            <p>Rapor Pendidikan 2025, NPD, Susenas BPS</p>
+          </div>
+          <div class="meta-box">
+            <h4>Metodologi</h4>
+            <p>Indeks Komposit Kesenjangan & Spasial GIS</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: URGENSI KESENJANGAN PENDIDIKAN -->
+    <section class="slide" id="slide-2">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 01 • Eksplorasi Masalah</span>
+          <h2 class="slide-title">Disparitas Sarana, Sebaran Guru, & Ketimpangan Akses Belajar</h2>
+        </div>
+        <span class="slide-tag">Problem Statement</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>🏛️ Siapa Pengambil Keputusan Sasaran?</h3>
+          <ul class="bullet-list">
+            <li><strong>Dinas Pendidikan Kabupaten/Kota/Provinsi:</strong> Bertanggung jawab atas pemerataan guru PNS/PPPK dan alokasi rehabilitasi ruang kelas rusak.</li>
+            <li><strong>Badan Perencanaan Pembangunan Daerah (Bappeda):</strong> Membutuhkan justifikasi kuantitatif berbasis data mikro untuk dokumen RPJMD dan penganggaran APBD.</li>
+            <li><strong>Yayasan Pendidikan & Lembaga Donor (CSR):</strong> Ingin menyalurkan beasiswa, buku, atau bantuan laboratorium komputer tepat sasaran (evidence-based giving).</li>
+            <li><strong>Dewan Pendidikan & Pengawas Sekolah:</strong> Memantau progres pemerataan kualitas antar-kecamatan.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>⚠️ Kendala di Tingkat Pengambilan Kebijakan</h3>
+          <ul class="bullet-list">
+            <li><strong>Data Tersebar & Berformat Parsial:</strong> Data guru di Dapodik, indikator mutu di Rapor Pendidikan, data fasilitas di NPD, dan angka partisipasi di Susenas BPS belum terpadu.</li>
+            <li><strong>Alokasi Bantuan Belum Berbasis Bukti (Evidence-Based):</strong> Intervensi anggaran kerap dipengaruhi faktor politis atau usulan proposal yang tidak merefleksikan urgensi terburuk.</li>
+            <li><strong>Ketiadaan Peta Kesenjangan Terpadu (Single Composite Index):</strong> Sulit menentukan secara objektif kecamatan mana yang mendesak direhabilitasi ruang kelasnya vs yang mendesak ditambah gurunya.</li>
+            <li><strong>Monitoring Pasca-Intervensi Minim:</strong> Sulit melacak apakah dana bantuan tahun lalu berhasil mendongkrak capaian literasi/numerasi sekolah.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Rumusan Masalah Utama:</strong> “Bagaimana membantu pemangku kepentingan memetakan kesenjangan pendidikan terpadu dan mensimulasikan prioritas intervensi anggaran berbasis data secara transparan?”
+      </div>
+    </section>
+
+    <!-- SLIDE 3: DATA KUANTITATIF & METODE INDEKS KOMPOSIT -->
+    <section class="slide" id="slide-3">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 02 • Bukti Data Empiris</span>
+          <h2 class="slide-title">Rapor Pendidikan 2025, NPD, & Statistik Pendidikan BPS</h2>
+        </div>
+        <span class="slide-tag">Multi-Source Verification</span>
+      </div>
+
+      <div class="grid-2col">
+        <div>
+          <div class="stat-callout">
+            <div class="stat-big">&lt; 0.40</div>
+            <div class="stat-caption">Indeks distribusi guru SMP/MTs masih berada pada rentang di bawah 0,4 di sejumlah wilayah, mengindikasikan ketimpangan sebaran guru antar-sekolah.</div>
+            <div class="stat-source">Sumber: Rapor Pendidikan Indonesia 2025 – Kemendikdasmen RI</div>
+          </div>
+
+          <div class="card-panel">
+            <h3>📡 Konektivitas & Sarana Satuan Pendidikan</h3>
+            <ul class="bullet-list">
+              <li><strong>NPD / Kemendikdasmen 2024:</strong> Lebih dari 80,72% satuan pendidikan terhubung internet, namun pada jenjang PAUD persentasenya baru 61,77%.</li>
+              <li><strong>Statistik Pendidikan BPS 2024 (Susenas Maret 2024):</strong> Menyajikan data agregat rasio ruang kelas rusak sedang/berat dan rasio fasilitas sanitasi layak menurut kabupaten.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <h3>📐 Metodologi Indeks Komposit Kesenjangan (EduEquity Index)</h3>
+          <ul class="bullet-list">
+            <li><strong>Normalisasi Indikator (Min-Max Scaling):</strong> Menstandardisasi berbagai metrik (rasio murid-guru, % kelas rusak, akses internet) ke skala 0–100.</li>
+            <li><strong>Pembobotan Transparan (PCA / Analytic Hierarchy Process):</strong> Memberikan bobot indikator yang dapat dikonfigurasi pengambil kebijakan dan diuji sensitivitasnya:
+              <br><code style="color:#fde047;">Index_Wilayah = w₁(Guru) + w₂(Fasilitas) + w₃(Koneksi) + w₄(Partisipasi)</code>
+            </li>
+            <li><strong>Analisis Spasial Klastering:</strong> Mengelompokkan wilayah ke dalam 4 kuadran: (1) Butuh Fasilitas Fisik, (2) Butuh Distribusi Guru, (3) Butuh Akses Digital, (4) Mandiri.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: ARSITEKTUR SOLUSI EDUMAP -->
+    <section class="slide" id="slide-4">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 03 • Arsitektur Solusi</span>
+          <h2 class="slide-title">Fitur Inti EduMap: Dari Data Mentah Menjadi Kebijakan</h2>
+        </div>
+        <span class="slide-tag">Decision-Support Platform</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🗺️</div>
+          <h3>1. GIS Education Gap Dashboard</h3>
+          <p>Peta tematik interaktif tingkat kecamatan yang memperlihatkan disparitas fasilitas, sanitasi, internet, dan rasio guru dalam sekali pandang.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+          <h3>2. Priority Mapping & Ranking</h3>
+          <p>Menyusun peringkat wilayah dengan tingkat ketertinggalan tertinggi secara objektif untuk penentuan sasaran dana alokasi khusus (DAK).</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏫</div>
+          <h3>3. School Aggregated Need Profile</h3>
+          <p>Profil agregat per satuan pendidikan tanpa mempublikasikan identitas pribadi siswa/guru, sesuai regulasi privasi data.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">💡</div>
+          <h3>4. Intervention Simulator</h3>
+          <p>Simulasi alokasi: "Jika Pemda mengalokasikan Rp5 Milyar, berapa sekolah terluar yang bisa tuntas direhab atau disambung internet satelit?"</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤝</div>
+          <h3>5. CSR & Donor Matcher</h3>
+          <p>Menjembatani perusahaan yang memiliki anggaran CSR pendidikan dengan daftar sekolah sasaran yang paling membutuhkan di sekitar pabrik.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📈</div>
+          <h3>6. Long-Term Impact Monitoring</h3>
+          <p>Memantau perubahan indikator Rapor Pendidikan 1–3 tahun setelah program intervensi dijalankan guna pertanggungjawaban publik.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: KOMPETITOR & CELAH DIFERENSIASI -->
+    <section class="slide" id="slide-5">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 04 • Lanskap Pasar</span>
+          <h2 class="slide-title">Diferensiasi: Dashboard Pelaporan vs Decision Support System</h2>
+        </div>
+        <span class="slide-tag">Competitive Landscape</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>🏢 Portal yang Ada & Batasannya</h3>
+          <ul class="bullet-list">
+            <li><strong>Rapor Pendidikan & NPD Kemendikdasmen:</strong> Luar biasa kaya data, namun bersifat reporting satu arah dan belum menyediakan alat simulasi optimasi skenario anggaran intervensi wilayah.</li>
+            <li><strong>Dapodik:</strong> Sumber data primer administrasi operasional sekolah, namun antarmukanya berfokus pada pendataan entri bukan analisis spasial kebijakan.</li>
+            <li><strong>Platform EdTech Swasta (Ruangguru, Zenius):</strong> Fokus pada konten materi belajar daring bagi siswa, bukan alat bantu pengambil kebijakan untuk pemerataan fasilitas fisik sekolah.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>🎯 4 Keunggulan Spesifik EduMap</h3>
+          <ul class="bullet-list">
+            <li><strong>Integrasi Multi-Sumber Lintas Instansi:</strong> Memadukan data Kemendikdasmen, data Susenas BPS, dan data spasial geografi dalam satu dashboard tunggal.</li>
+            <li><strong>Decision-Support & Simulasi Anggaran:</strong> Pengambil kebijakan dapat menguji trade-off alokasi intervensi sebelum APBD diketok palu.</li>
+            <li><strong>Metodologi Indeks Terbuka & Disesuaikan:</strong> Pemda dapat menyesuaikan bobot indikator sesuai prioritas lokal (misal: prioritas elektrifikasi di daerah 3T).</li>
+            <li><strong>Fasilitasi Kemitraan CSR:</strong> Menyediakan data terverifikasi untuk lembaga filantropi dan korporasi yang ingin menyalurkan dana bantuan sosial.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: MODEL BISNIS & WILLINGNESS TO PAY (B2G / B2B) -->
+    <section class="slide" id="slide-6">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 05 • Finansial</span>
+          <h2 class="slide-title">Model Pendapatan B2G & B2B Institusional</h2>
+        </div>
+        <span class="slide-tag">Revenue Streams</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel" style="border-top: 4px solid #818cf8;">
+          <h4 style="color:#818cf8; text-transform:uppercase; font-size:0.8rem;">Tier 1 – Pilot Pemetaan</h4>
+          <h3 style="margin: 0.5rem 0;">Proyek Pemetaan Daerah</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Rp10jt – Rp30jt <span style="font-size:0.85rem; color:#c7d2fe;">/proyek</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Audit & pemetaan 1 kabupaten/kota</li>
+            <li>Penyusunan baseline Indeks Kesenjangan</li>
+            <li>Laporan rekomendasi intervensi APBD</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid var(--accent); background: rgba(251, 191, 36, 0.08);">
+          <h4 style="color:var(--accent); text-transform:uppercase; font-size:0.8rem;">Tier 2 – Lisensi Dashboard B2G</h4>
+          <h3 style="margin: 0.5rem 0;">Langganan Pemda</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:var(--accent); margin-bottom:0.5rem;">Rp1,5jt – Rp4jt <span style="font-size:0.85rem; color:#c7d2fe;">/bulan</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Akses dashboard spasial realtime</li>
+            <li>Simulasi alokasi anggaran intervensi</li>
+            <li>Pelatihan analis data Dinas Pendidikan</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid #34d399;">
+          <h4 style="color:#34d399; text-transform:uppercase; font-size:0.8rem;">Tier 3 – Kemitraan CSR / Donor</h4>
+          <h3 style="margin: 0.5rem 0;">Sponsorship & M&E</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Kontrak Berbasis Wilayah</div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Kurasi sekolah target program CSR korporasi</li>
+            <li>Laporan Monitoring & Evaluasi dampak tahunan</li>
+            <li>Sertifikasi akuntabilitas sosial program</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Pertimbangan Siklus B2G:</strong> Penjualan ke instansi pemerintah membutuhkan pemahaman siklus perencanaan APBD (Musrenbang di awal tahun, pengesahan di akhir tahun). Oleh karena itu, <em>pintu masuk tercepat adalah proyek pilot konsultasi pemetaan atau kemitraan dengan yayasan/CSR</em> sebelum masuk ke pengadaan formal APBD.
+      </div>
+    </section>
+
+    <!-- SLIDE 7: BUSINESS MODEL CANVAS (9 ELEMEN) -->
+    <section class="slide" id="slide-7">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 06 • BMC Komprehensif</span>
+          <h2 class="slide-title">9 Elemen Business Model Canvas (EduMap)</h2>
+        </div>
+        <span class="slide-tag">Klik kotak untuk detail</span>
+      </div>
+
+      <div class="bmc-grid-container">
+        <div class="bmc-cell cell-partners" onclick="showBmcDetail('partners')">
+          <span class="bmc-num">08</span>
+          <div class="bmc-cell-title">Key Partners</div>
+          <ul class="bmc-preview-list">
+            <li>Dinas Pendidikan & Bappeda</li>
+            <li>Kemendikdasmen & Pusdatin</li>
+            <li>BPS (Susenas & Podes)</li>
+            <li>Yayasan & Lembaga Filantropi</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-activities" onclick="showBmcDetail('activities')">
+          <span class="bmc-num">07</span>
+          <div class="bmc-cell-title">Key Activities</div>
+          <ul class="bmc-preview-list">
+            <li>Pembersihan & integrasi data multi-sumber</li>
+            <li>Kalkulasi bobot indeks komposit</li>
+            <li>Pemetaan GIS & simulasi anggaran</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-resources" onclick="showBmcDetail('resources')">
+          <span class="bmc-num">06</span>
+          <div class="bmc-cell-title">Key Resources</div>
+          <ul class="bmc-preview-list">
+            <li>Platform GIS & DSS data analitik</li>
+            <li>Basis data indikator pendidikan</li>
+            <li>Tim statistik, GIS, & kebijakan publik</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-value" onclick="showBmcDetail('value')">
+          <span class="bmc-num">02</span>
+          <div class="bmc-cell-title">Value Propositions</div>
+          <ul class="bmc-preview-list">
+            <li>Peta spasial kesenjangan sekolah transparan</li>
+            <li>Simulasi alokasi anggaran intervensi terukur</li>
+            <li>Indeks prioritas wilayah objektif</li>
+            <li>Monitoring dampak program jangka panjang</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-relations" onclick="showBmcDetail('relations')">
+          <span class="bmc-num">04</span>
+          <div class="bmc-cell-title">Customer Relations</div>
+          <ul class="bmc-preview-list">
+            <li>Konsultasi kebijakan berbasis data</li>
+            <li>Pelatihan dashboard staf instansi</li>
+            <li>Laporan rekomendasi kebijakan tahunan</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-channels" onclick="showBmcDetail('channels')">
+          <span class="bmc-num">03</span>
+          <div class="bmc-cell-title">Channels</div>
+          <ul class="bmc-preview-list">
+            <li>Penjualan institusional B2G / B2B</li>
+            <li>Seminar kebijakan pendidikan nasional</li>
+            <li>Kemitraan perguruan tinggi (Polstat STIS)</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-segments" onclick="showBmcDetail('segments')">
+          <span class="bmc-num">01</span>
+          <div class="bmc-cell-title">Customer Segments</div>
+          <ul class="bmc-preview-list">
+            <li>Dinas Pendidikan Kabupaten/Kota</li>
+            <li>Bappeda Pemerintah Daerah</li>
+            <li>Divisi CSR BUMN & Perusahaan Swasta</li>
+            <li>Yayasan & Lembaga Donor Pendidikan</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-cost" onclick="showBmcDetail('cost')">
+          <span class="bmc-num">09</span>
+          <div class="bmc-cell-title">Cost Structure</div>
+          <ul class="bmc-preview-list">
+            <li>Server cloud GIS & database spasial | Honor analis data statistik & pakar kebijakan | Biaya konsultasi dan pelatihan institusi Pemda | Keamanan & tata kelola data</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-revenue" onclick="showBmcDetail('revenue')">
+          <span class="bmc-num">05</span>
+          <div class="bmc-cell-title">Revenue Streams</div>
+          <ul class="bmc-preview-list">
+            <li>Paket studi pemetaan kesenjangan daerah (Rp10jt–Rp30jt) | Lisensi SaaS dashboard B2G tahunan | Kontrak M&E program CSR korporasi</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bmc-detail-box" id="bmcDetailBox">
+        <h4 id="detailBoxTitle">Detail Elemen BMC</h4>
+        <p id="detailBoxContent">Pilih salah satu kotak di atas untuk melihat justifikasi kuantitatif dan penjelasan mendalam.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: SIMULATOR INDEKS KESENJANGAN & ALOKASI ANGGARAN -->
+    <section class="slide" id="slide-8">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 07 • Lab Simulasi</span>
+          <h2 class="slide-title">Simulasi Indeks Kesenjangan & Alokasi Intervensi</h2>
+        </div>
+        <span class="slide-tag">Interactive Policy Simulator</span>
+      </div>
+
+      <div class="sim-container">
+        <div class="sim-controls">
+          <h3 style="color:#fff;">Simulasi Kecamatan Terluar (Contoh Kasus)</h3>
+
+          <div class="control-group">
+            <label><span>Indeks Distribusi Guru (0=Krisis, 1=Merata):</span> <strong id="lblDistGuru" style="color:#f87171;">0.38</strong></label>
+            <input type="range" min="20" max="90" step="2" value="38" class="slider-input" id="rngDistGuru" oninput="runEduSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Persentase Sekolah Terhubung Internet:</span> <strong id="lblNet" style="color:#fbbf24;">55%</strong></label>
+            <input type="range" min="30" max="100" step="5" value="55" class="slider-input" id="rngNet" oninput="runEduSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Persentase Ruang Kelas Kondisi Baik:</span> <strong id="lblRuang" style="color:#818cf8;">60%</strong></label>
+            <input type="range" min="30" max="100" step="5" value="60" class="slider-input" id="rngRuang" oninput="runEduSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Skenario Intervensi Anggaran:</span></label>
+            <select class="filter-select" id="selIntervensi" onchange="runEduSim()" style="background:#0b0f1e; border:1px solid var(--border); color:#fff; padding:8px; border-radius:6px; width:100%;">
+              <option value="none">Belum Ada Program Tambahan</option>
+              <option value="guru" selected>Program Redistribusi Guru & Tunjangan 3T</option>
+              <option value="digital">Program Bantuan Internet Satelit & Tablet</option>
+              <option value="fisik">Program Rehabilitasi Fisik Ruang Kelas</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sim-result">
+          <span style="font-size:0.85rem; color:var(--text-sub); text-transform:uppercase;">Skor Indeks Kesenjangan Komposit (EduEquity Score)</span>
+          <div class="sim-res-val" id="resEduScore">51.2 / 100</div>
+
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span>Kategori Prioritas Intervensi:</span>
+              <strong id="resPriorityTier" style="color:#f87171;">Prioritas 1 (Kebutuhan Mendesak)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span>Rekomendasi Intervensi Utama:</span>
+              <strong id="resActionRec" style="color:#34d399;">Redistribusi & Formasi Guru SMP/MTs</strong>
+            </div>
+            <div style="font-size:0.8rem; color:#c7d2fe; margin-top:8px;" id="resEduNote">
+              *Metodologi indeks komposit membobot indikator secara objektif untuk memastikan dana APBD/CSR disalurkan ke wilayah dengan defisit terbesar.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: RENCANA VALIDASI LAPANGAN -->
+    <section class="slide" id="slide-9">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah Terakhir • Rencana Aksi</span>
+          <h2 class="slide-title">Roadmap Validasi Lapangan Menuju Lomba BMC</h2>
+        </div>
+        <span class="slide-tag">Action Plan Polstat STIS</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 1</div>
+          <h3>Wawancara Pemangku Kepentingan (2–3 Informan)</h3>
+          <p>Wawancarai pengelola dana BOS/perencanaan di Dinas Pendidikan atau perwakilan yayasan sosial pendidikan. Identifikasi kesulitan mereka menentukan sekolah prioritas.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 2</div>
+          <h3>Uji Coba Data Mikro 1 Kabupaten</h3>
+          <p>Unduh data publik NPD dan Statistik Pendidikan 1 kabupaten. Hitung indeks komposit sederhana dan sajikan dalam peta visualisasi GIS dasar.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 3</div>
+          <h3>Penyusunan Proposal BMC Final</h3>
+          <p>Tampilkan metodologi kuantitatif indeks komposit dan skema kemitraan B2G/CSR pada Customer Segments dan Value Propositions proposal kompetisi.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem; text-align:center;">
+        <a href="index.html" class="back-hub" style="background:var(--primary); color:#fff; padding:10px 20px; font-size:0.95rem;">
+          ← Kembali ke Portal Utama 5 Konsep
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 9;
+
+    function showSlide(index) {
+      if (index < 1 || index > totalSlides) return;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide').forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+
+      document.getElementById('slideIndicator').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      document.getElementById('progressBar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      
+      document.getElementById('prevBtn').disabled = (currentSlide === 1);
+      document.getElementById('nextBtn').disabled = (currentSlide === totalSlides);
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextSlide() { if (currentSlide < totalSlides) showSlide(currentSlide + 1); }
+    function prevSlide() { if (currentSlide > 1) showSlide(currentSlide - 1); }
+
+    document.addEventListener('keydown', (e) => {
+      if (document.body.classList.contains('doc-mode')) return;
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); prevSlide(); }
+      else if (e.key === 'Home') showSlide(1);
+      else if (e.key === 'End') showSlide(totalSlides);
+    });
+
+    function toggleViewMode() {
+      document.body.classList.toggle('doc-mode');
+      const isDoc = document.body.classList.contains('doc-mode');
+      document.getElementById('viewToggleBtn').textContent = isDoc ? '🖥️ Mode Slide' : '📄 Mode Dokumen';
+    }
+
+    const bmcDetails = {
+      segments: {
+        title: "1. Customer Segments (Kuantitatif)",
+        content: "Dinas Pendidikan Kabupaten/Kota dan Bappeda Pemerintah Daerah (514 kabupaten/kota di Indonesia), divisi Corporate Social Responsibility (CSR) perusahaan nasional/multinasional yang mendanai pendidikan, serta yayasan sosial dan lembaga donor filantropi."
+      },
+      value: {
+        title: "2. Value Propositions",
+        content: "Memetakan kesenjangan fasilitas dan guru antarwilayah dengan indeks komposit statistik transparan, mensimulasikan dampak alokasi anggaran intervensi (evidence-based budgeting), serta menyediakan sistem monitoring capaian Rapor Pendidikan jangka panjang."
+      },
+      channels: {
+        title: "3. Channels",
+        content: "Penjualan langsung institusional B2G dan proposal CSR, forum Musrenbang daerah, seminar kebijakan pendidikan nasional, serta pameran inovasi teknologi sektor publik."
+      },
+      relations: {
+        title: "4. Customer Relationships",
+        content: "Konsultasi penyusunan indikator prioritas daerah, pelatihan teknis dashboard analis data dinas, penyusunan buku laporan profil kesenjangan tahunan, dan pendampingan akuntabilitas program."
+      },
+      revenue: {
+        title: "5. Revenue Streams",
+        content: "Biaya proyek pemetaan dan kajian baseline daerah (Rp10 juta–Rp30 juta/kabupaten), lisensi SaaS dashboard spasial B2G tahunan (Rp1,5 juta–Rp4 juta/bulan), serta kontrak jasa monitoring evaluasi program CSR korporasi."
+      },
+      resources: {
+        title: "6. Key Resources",
+        content: "Platform analitik spasial GIS terintegrasi, pangkalan data multi-sumber (Dapodik, Rapor Pendidikan, NPD, BPS), metodologi pembobotan indeks komposit teruji, serta tim data scientist dan analis kebijakan pendidikan."
+      },
+      activities: {
+        title: "7. Key Activities",
+        content: "Standardisasi dan pembersihan data pendidikan multi-format, pemodelan statistik spasial, pengembangan fitur simulasi anggaran, kalibrasi metodologi indeks bersama akademisi, dan sosialisasi pengguna instansi."
+      },
+      partners: {
+        title: "8. Key Partners",
+        content: "Dinas Pendidikan Daerah dan Bappeda, Kementerian Pendidikan Dasar dan Menengah (Pusdatin & Balitbang), Badan Pusat Statistik (BPS), perguruan tinggi kedinasan/akademisi (Polstat STIS), dan lembaga donor."
+      },
+      cost: {
+        title: "9. Cost Structure",
+        content: "Biaya infrastruktur komputasi cloud GIS dan database spasial terenkripsi, gaji analis data statistik dan pakar kebijakan publik, biaya lokakarya pelatihan dinas, serta tata kelola kepatuhan privasi data."
+      }
+    };
+
+    function showBmcDetail(key) {
+      document.querySelectorAll('.bmc-cell').forEach(c => c.classList.remove('active-cell'));
+      event.currentTarget.classList.add('active-cell');
+
+      const box = document.getElementById('bmcDetailBox');
+      const data = bmcDetails[key];
+      if (data) {
+        document.getElementById('detailBoxTitle').textContent = data.title;
+        document.getElementById('detailBoxContent').textContent = data.content;
+        box.classList.add('show');
+      }
+    }
+
+    function runEduSim() {
+      let distGuru = parseInt(document.getElementById('rngDistGuru').value) / 100;
+      let net = parseInt(document.getElementById('rngNet').value);
+      let ruang = parseInt(document.getElementById('rngRuang').value);
+      let scenario = document.getElementById('selIntervensi').value;
+
+      document.getElementById('lblDistGuru').textContent = distGuru.toFixed(2);
+      document.getElementById('lblNet').textContent = net + "%";
+      document.getElementById('lblRuang').textContent = ruang + "%";
+
+      // Interventions impact
+      if (scenario === 'guru') {
+        distGuru = Math.min(1.0, distGuru + 0.25);
+      } else if (scenario === 'digital') {
+        net = Math.min(100, net + 30);
+      } else if (scenario === 'fisik') {
+        ruang = Math.min(100, ruang + 25);
+      }
+
+      // Composite index: (distGuru * 100 * 0.4) + (net * 0.3) + (ruang * 0.3)
+      let score = (distGuru * 100 * 0.4) + (net * 0.3) + (ruang * 0.3);
+
+      document.getElementById('resEduScore').textContent = score.toFixed(1) + " / 100";
+
+      let tier = "Prioritas 1 (Kebutuhan Sangat Mendesak)";
+      let tierColor = "#f87171";
+      let actionRec = "Redistribusi Guru & Fasilitas Pokok";
+
+      if (score >= 75) {
+        tier = "Prioritas 3 (Mandiri / Pemeliharaan)";
+        tierColor = "#34d399";
+        actionRec = "Penguatan Mutu Pembelajaran Daring";
+      } else if (score >= 60) {
+        tier = "Prioritas 2 (Peningkatan Sarana)";
+        tierColor = "#fbbf24";
+        actionRec = "Penambahan Akses Digital & Internet Satelit";
+      }
+
+      document.getElementById('resPriorityTier').textContent = tier;
+      document.getElementById('resPriorityTier').style.color = tierColor;
+      document.getElementById('resActionRec').textContent = actionRec;
+
+      document.getElementById('resEduNote').textContent = (scenario !== 'none')
+        ? `✅ Dengan program intervensi '${scenario}', skor kesenjangan meningkat menjadi ${score.toFixed(1)}. Alokasi terbukti efisien mendongkrak indikator terlemah.`
+        : "*Belum ada intervensi tambahan. Nilai mencerminkan baseline riil sebelum alokasi APBD/CSR disalurkan.";
+    }
+
+    showSlide(1);
+    runEduSim();
+  </script>
+</body>
+</html>

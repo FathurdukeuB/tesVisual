@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konsep 4: WisataFlow | Presentasi Interaktif BMC Dies Natalis STIS 68</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0c4a6e;
+      --primary-light: #38bdf8;
+      --accent: #f59e0b;
+      --accent-soft: rgba(245, 158, 11, 0.15);
+      --bg-dark: #071524;
+      --bg-card: #0d233a;
+      --bg-card-hover: #133252;
+      --text-light: #f0f9ff;
+      --text-muted: #7dd3fc;
+      --text-sub: #bae6fd;
+      --border: rgba(56, 189, 248, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 15% 20%, rgba(2, 132, 199, 0.22) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 75%, rgba(14, 165, 233, 0.15) 0%, transparent 45%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1.8rem;
+      background: rgba(7, 21, 36, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-hub {
+      text-decoration: none;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .back-hub:hover { background: var(--primary); color: #fff; }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .badge-code {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .view-toggle {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text-light);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .view-toggle:hover { background: rgba(255, 255, 255, 0.15); }
+
+    .ctrl-btn {
+      background: var(--primary);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .ctrl-btn:hover { background: var(--primary-light); transform: scale(1.05); }
+    .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .slide-indicator {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      min-width: 85px;
+      text-align: center;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 54px;
+      z-index: 99;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #38bdf8);
+      width: 11.1%;
+      transition: width 0.3s ease;
+    }
+
+    .deck-viewport {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      min-height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.8rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      animation: slideIn 0.35s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide.active { display: block; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .slide-step {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    .slide-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.1rem;
+      color: #fff;
+      margin-top: 4px;
+    }
+    .slide-tag {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    /* Slide 1 - Cover */
+    .cover-hero { text-align: center; padding: 2.5rem 1rem; }
+    .cover-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(2, 132, 199, 0.2);
+      border: 1px solid var(--primary-light);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #bae6fd;
+      margin-bottom: 1.5rem;
+    }
+    .cover-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+      background: linear-gradient(135deg, #f0f9ff 20%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cover-tagline {
+      font-size: 1.35rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .cover-desc {
+      max-width: 800px;
+      margin: 0 auto 2.5rem;
+      font-size: 1.05rem;
+      color: #e0f2fe;
+      line-height: 1.65;
+    }
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .meta-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+    }
+    .meta-box h4 { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+    .meta-box p { font-size: 0.95rem; font-weight: 600; color: #fff; }
+
+    .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+    .card-panel {
+      background: rgba(7, 21, 36, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .card-panel h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-panel p, .card-panel li {
+      font-size: 0.92rem;
+      color: #bae6fd;
+      margin-bottom: 0.6rem;
+    }
+    ul.bullet-list { padding-left: 1.2rem; }
+    ul.bullet-list li { margin-bottom: 0.5rem; }
+
+    .stat-callout {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(12, 74, 110, 0.4));
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-big {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #38bdf8;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-caption { font-size: 0.95rem; color: #f0f9ff; font-weight: 500; }
+    .stat-source { font-size: 0.78rem; color: var(--text-sub); margin-top: 4px; }
+
+    /* 9-Block BMC Grid */
+    .bmc-grid-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .bmc-cell {
+      background: rgba(13, 35, 58, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .bmc-cell:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+    .bmc-cell.active-cell {
+      border-color: var(--accent);
+      background: rgba(245, 158, 11, 0.12);
+    }
+
+    .cell-partners { grid-column: 1 / 2; grid-row: 1 / 3; }
+    .cell-activities { grid-column: 2 / 3; grid-row: 1 / 2; }
+    .cell-resources { grid-column: 2 / 3; grid-row: 2 / 3; }
+    .cell-value { grid-column: 3 / 4; grid-row: 1 / 3; }
+    .cell-relations { grid-column: 4 / 5; grid-row: 1 / 2; }
+    .cell-channels { grid-column: 4 / 5; grid-row: 2 / 3; }
+    .cell-segments { grid-column: 5 / 6; grid-row: 1 / 3; }
+    .cell-cost { grid-column: 1 / 4; grid-row: 3 / 4; }
+    .cell-revenue { grid-column: 4 / 6; grid-row: 3 / 4; }
+
+    .bmc-num {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .bmc-cell-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .bmc-preview-list { font-size: 0.8rem; color: #bae6fd; padding-left: 1rem; }
+    .bmc-preview-list li { margin-bottom: 3px; }
+
+    .bmc-detail-box {
+      margin-top: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      background: rgba(2, 132, 199, 0.15);
+      border: 1px solid var(--primary-light);
+      border-radius: 12px;
+      display: none;
+    }
+    .bmc-detail-box.show { display: block; animation: slideIn 0.2s ease-out; }
+    .bmc-detail-box h4 { color: #fff; margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif; }
+    .bmc-detail-box p { font-size: 0.92rem; color: #f0f9ff; }
+
+    /* Interactive Crowd Simulator */
+    .sim-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 1.8rem;
+      border: 1px solid var(--border);
+    }
+    .sim-controls { display: flex; flex-direction: column; gap: 1.2rem; }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .slider-input {
+      width: 100%;
+      height: 8px;
+      background: #0c4a6e;
+      border-radius: 5px;
+      outline: none;
+      accent-color: var(--primary-light);
+    }
+    .sim-result {
+      background: rgba(13, 35, 58, 0.9);
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .sim-res-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0.5rem 0;
+    }
+
+    body.doc-mode .slide { display: block !important; margin-bottom: 3rem; }
+    body.doc-mode .deck-controls { display: none; }
+    body.doc-mode .progress-bar-container { display: none; }
+
+    @media (max-width: 900px) {
+      .grid-2col, .grid-3col, .sim-container { grid-template-columns: 1fr; }
+      .bmc-grid-container { display: flex; flex-direction: column; }
+      .cover-title { font-size: 2.4rem; }
+      .slide { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <header class="top-bar">
+    <div class="brand-group">
+      <a href="index.html" class="back-hub">← Hub Portal</a>
+      <span class="badge-code">D5 • PARIWISATA & KREATIF</span>
+      <span class="brand-title">WisataFlow / VisitFlow</span>
+      <a href="konsep-umkm-insight.html" class="back-hub" style="background:rgba(10,117,100,0.2); border-color:#0284c7; color:#38bdf8; font-size:0.8rem;">📊 Buka UMKM Insight</a>
+    </div>
+    
+    <div class="deck-controls">
+      <button class="view-toggle" id="viewToggleBtn" onclick="toggleViewMode()">📄 Mode Dokumen</button>
+      <button class="ctrl-btn" id="prevBtn" onclick="prevSlide()" title="Slide Sebelumnya">‹</button>
+      <div class="slide-indicator" id="slideIndicator">Slide 1 / 9</div>
+      <button class="ctrl-btn" id="nextBtn" onclick="nextSlide()" title="Slide Berikutnya">›</button>
+    </div>
+  </header>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <main class="deck-viewport">
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide active" id="slide-1">
+      <div class="cover-hero">
+        <div class="cover-pill">🗺️ Subtema 4: Pariwisata, Jasa, & Kreatif • Dies Natalis ke-68 Polstat STIS</div>
+        <h1 class="cover-title">WisataFlow</h1>
+        <div class="cover-tagline">“Sebarkan Kunjungan, Tingkatkan Kualitas Wisata.”</div>
+        <p class="cover-desc">
+          Platform manajemen pengunjung terpadu (Visitor Management System) berbasis data daya dukung fisik & ekologis destinasi.
+          Mengatur kuota reservasi per slot waktu, memprediksi jam puncak, dan mengalihkan konsentrasi kerumunan menuju zona atau waktu alternatif.
+        </p>
+
+        <div class="cover-meta-grid">
+          <div class="meta-box">
+            <h4>Kode Masalah</h4>
+            <p>D5 – Penumpukan Wisatawan (Overtourism)</p>
+          </div>
+          <div class="meta-box">
+            <h4>Target Utama</h4>
+            <p>Pengelola Destinasi, BUMDes, Taman Nasional</p>
+          </div>
+          <div class="meta-box">
+            <h4>Basis Data</h4>
+            <p>BPS Daya Tarik Wisata & Panduan Kemenpar</p>
+          </div>
+          <div class="meta-box">
+            <h4>Model Bisnis</h4>
+            <p>B2B / B2G Subskripsi & Setup Kuota Slot</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: URGENSI MASALAH OVERTOURISM -->
+    <section class="slide" id="slide-2">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 01 • Eksplorasi Masalah</span>
+          <h2 class="slide-title">Kepadatan Ekstrem, Penurunan Kualitas Pengalaman, & Kerusakan Destinasi</h2>
+        </div>
+        <span class="slide-tag">Problem Analysis</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>🏞️ Siapa Pengelola Destinasi Terdampak?</h3>
+          <ul class="bullet-list">
+            <li><strong>Pengelola Ekowisata & Taman Nasional:</strong> Memiliki batasan daya dukung alam ketat; kelebihan turis memicu erosi jalur dan tumpukan sampah.</li>
+            <li><strong>Destinasi Wisata Alam BUMDes:</strong> Air terjun, pantai, dan bukit selfie yang kewalahan menampung parkir dan antrean saat weekend.</li>
+            <li><strong>Objek Wisata Warisan Budaya / Heritage:</strong> Candi dan museum dengan ruang fisik sempit yang rentan rusak akibat gesekan massa.</li>
+            <li><strong>Dinas Pariwisata Daerah (Pemkab/Pemkot):</strong> Butuh data agregat arus mobilitas pelancong untuk mitigasi kemacetan jalan arteri.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>⚠️ Masalah Pokok yang Dihadapi</h3>
+          <ul class="bullet-list">
+            <li><strong>Fenomena "Peak & Valley" Ekstrem:</strong> Sepi pada hari kerja (Selasa-Kamis), tetapi membludak tidak terkendali pada Sabtu-Minggu dan hari libur nasional.</li>
+            <li><strong>Penjualan Tiket Tanpa Batas Kuota Jam:</strong> Tiket harian dijual bebas sehingga 80% pengunjung datang bersamaan di jam 10.00–14.00.</li>
+            <li><strong>Titik Botol (Bottleneck) di Spot Populer:</strong> Antrean foto hingga 60 menit menimbulkan ketidakpuasan dan ulasan negatif (review bintang 1).</li>
+            <li><strong>Ketiadaan Sistem Peringatan Dini:</strong> Petugas di loket tidak tahu bahwa area dalam sudah melampaui kapasitas aman.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Rumusan Masalah Utama:</strong> “Bagaimana membantu pengelola destinasi memprediksi jumlah pengunjung dan mendistribusikan kuota slot waktu secara dinamis agar kapasitas terkendali dan kepuasan wisatawan terjaga?”
+      </div>
+    </section>
+
+    <!-- SLIDE 3: DATA KUANTITATIF & METROLOGI DAYA DUKUNG -->
+    <section class="slide" id="slide-3">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 02 • Bukti Data</span>
+          <h2 class="slide-title">Statistik Objek Wisata BPS & Metodologi Carrying Capacity</h2>
+        </div>
+        <span class="slide-tag">BPS & Panduan Kemenpar RI</span>
+      </div>
+
+      <div class="grid-2col">
+        <div>
+          <div class="stat-callout">
+            <div class="stat-big">Carrying Cap.</div>
+            <div class="stat-caption">Daya dukung fisik (PCC) dan daya dukung riil (RCC) menjadi parameter wajib dalam manajemen pengunjung berkelanjutan.</div>
+            <div class="stat-source">Sumber: BPS Statistik Objek Daya Tarik Wisata & Panduan Implementasi Visitor Management Kemenpar RI</div>
+          </div>
+
+          <div class="card-panel">
+            <h3>📊 Indikator Kuantitatif Destinasi</h3>
+            <ul class="bullet-list">
+              <li><strong>Physical Carrying Capacity (PCC):</strong> Luas area efektif dibagi kebutuhan ruang minimum per pengunjung (m²/orang).</li>
+              <li><strong>Rasio Kepadatan per Zona (Density Ratio):</strong> Jumlah pengunjung aktual per zona dibagi batas kapasitas aman per jam.</li>
+              <li><strong>Indeks Waktu Antrean:</strong> Waktu tunggu di pintu masuk loket dan titik transit fasilitas toilet/restoran.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <h3>📐 Model Statistik & Optimasi Alokasi</h3>
+          <ul class="bullet-list">
+            <li><strong>Forecasting Kedatangan Deret Waktu:</strong> Memprediksi lonjakan pelancong berbasis kalender libur sekolah, prediksi cuaca BMKG, dan data historis tiket.</li>
+            <li><strong>Optimasi Alokasi Slot (Dynamic Slot Balancing):</strong> Menghitung kuota reservasi optimal per interval 2 jam untuk meratakan kurva kedatangan:
+              <br><code style="color:#fde047;">Quota(t) = min( RCC_zona , BaseDemand(t) × Factor(Discount) )</code>
+            </li>
+            <li><strong>Pengumpulan Data Primer:</strong> Uji coba pencatatan tiket masuk per jam pada 1 destinasi pilot selama 4 pekan (weekend vs weekday).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: ARSITEKTUR SOLUSI WISATAFLOW -->
+    <section class="slide" id="slide-4">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 03 • Arsitektur Solusi</span>
+          <h2 class="slide-title">Fitur WisataFlow: Dari Antrean Macet Jadi Tertib</h2>
+        </div>
+        <span class="slide-tag">Core Modules</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏱️</div>
+          <h3>1. Time-Slot Reservation</h3>
+          <p>Wisatawan memilih tiket dengan jendela kedatangan spesifik (misal: Sesi Pagi 08.00–10.00 atau Sesi Sore 14.00–16.00).</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+          <h3>2. Dynamic Capacity Guard</h3>
+          <p>Sistem otomatis menutup pemesanan tiket jika kuota batas daya dukung aman di suatu jam telah tercapai (mencegah overbooking).</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🗺️</div>
+          <h3>3. Multi-Zone Heatmap</h3>
+          <p>Dashboard pengelola menampilkan status kepadatan per zona (Zona Parkir, Zona Pemandian, Spot Foto) dengan warna Hijau, Kuning, Merah.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔀</div>
+          <h3>4. Smart Visitor Rerouting</h3>
+          <p>Memberi rekomendasi diskon tiket untuk sesi sepi (off-peak hours) atau mengarahkan pelancong ke wahana kedua yang sedang lengang.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📱</div>
+          <h3>5. Check-In Cepat Tanpa Alat Mahal</h3>
+          <p>Cukup menggunakan pemindaian QR code via smartphone petugas loket, tanpa mewajibkan turnstile gerbang sensor berharga ratusan juta.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📈</div>
+          <h3>6. Evaluasi Dampak Lingkungan</h3>
+          <p>Laporan berkala menghitung indeks kepuasan wisatawan dan pengurangan kerusakan lingkungan pasca penataan kuota slot.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: KOMPETITOR & CELAH DIFERENSIASI -->
+    <section class="slide" id="slide-5">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 04 • Lanskap Pasar</span>
+          <h2 class="slide-title">Diferensiasi: Tiketing Biasa vs Visitor Management Berkelanjutan</h2>
+        </div>
+        <span class="slide-tag">Positioning</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>🏢 Pemain yang Ada & Keterbatasannya</h3>
+          <ul class="bullet-list">
+            <li><strong>SiOra (Labuan Bajo / TN Komodo):</strong> Layanan reservasi dan monitoring kuota resmi destinasi konservasi super-prioritas, namun sistemnya dirancang kustom dengan biaya besar untuk proyek pemerintah berskala besar.</li>
+            <li><strong>Platform Tiketing Komersial (Loket, Tiket.com):</strong> Berorientasi memaksimalkan volume penjualan tiket sebanyak mungkin tanpa memperhatikan batas daya dukung lingkungan setempat.</li>
+            <li><strong>Karcis Sobek Manual:</strong> Biaya murah namun mustahil memberikan data kepadatan waktu nyata ke pengelola.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>🎯 4 Keunggulan Unik WisataFlow</h3>
+          <ul class="bullet-list">
+            <li><strong>Fokus Daya Dukung Ekologis & Keselamatan:</strong> Target utamanya bukan cuma tiket terjual, tapi menjaga kelestarian aset alam dan keselamatan pengunjung.</li>
+            <li><strong>Biaya Terjangkau untuk Destinasi Menengah & BUMDes:</strong> Model SaaS ringan tanpa perlu investasi sensor gerbang otomatis miliaran rupiah.</li>
+            <li><strong>Distribusi Slot Dinamis:</strong> Mekanisme insentif harga (dynamic pricing) untuk menggeser pengunjung dari jam puncak ke jam lengang.</li>
+            <li><strong>Kepatuhan Standar Kemenpar RI:</strong> Mengadopsi prinsip resmi panduan manajemen pengunjung berkelanjutan.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: MODEL MONETISASI & HIPOTESIS WTP -->
+    <section class="slide" id="slide-6">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 05 • Finansial</span>
+          <h2 class="slide-title">Model Bisnis B2B / B2G Berbasis Nilai Pengelolaan</h2>
+        </div>
+        <span class="slide-tag">Revenue Streams</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel" style="border-top: 4px solid #38bdf8;">
+          <h4 style="color:#38bdf8; text-transform:uppercase; font-size:0.8rem;">Tier 1 – Destinasi Lokal / BUMDes</h4>
+          <h3 style="margin: 0.5rem 0;">Paket Destinasi Kecil</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Rp500rb – Rp1,5jt <span style="font-size:0.85rem; color:#bae6fd;">/bulan</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Pengaturan kuota 1–2 pintu gerbang</li>
+            <li>Sistem scan QR tiket via HP petugas</li>
+            <li>Laporan statistik kunjungan bulanan</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid var(--accent); background: rgba(245, 158, 11, 0.08);">
+          <h4 style="color:var(--accent); text-transform:uppercase; font-size:0.8rem;">Tier 2 – Destinasi Favorit (Core)</h4>
+          <h3 style="margin: 0.5rem 0;">Paket Kawasan Terpadu</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:var(--accent); margin-bottom:0.5rem;">Rp2,5jt – Rp6jt <span style="font-size:0.85rem; color:#bae6fd;">/bulan</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Manajemen multi-zona (s.d. 8 spot/wahana)</li>
+            <li>Heatmap kepadatan real-time & early alert</li>
+            <li>Prediksi jam puncak & dynamic quota</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid #10b981;">
+          <h4 style="color:#10b981; text-transform:uppercase; font-size:0.8rem;">Tier 3 – B2G Konservasi / Dispar</h4>
+          <h3 style="margin: 0.5rem 0;">Taman Nasional & Pemda</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Kontrak Tahunan</div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Integrasi sistem perizinan kawasan konservasi</li>
+            <li>Dashboard pemantauan pariwisata terpadu se-kabupaten</li>
+            <li>Pelatihan SOP lapangan dan mitigasi bencana</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Justifikasi WTP Pengelola:</strong> Tiket masuk yang tertib mengurangi kebocoran tiket (tiket hilang/tidak tercatat petugas), mengurangi biaya perbaikan fasilitas yang rusak akibat kepadatan berlebih, dan meningkatkan kepuasan turis sehingga menaikkan ulasan positif di Google Maps.
+      </div>
+    </section>
+
+    <!-- SLIDE 7: BUSINESS MODEL CANVAS (9 ELEMEN) -->
+    <section class="slide" id="slide-7">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 06 • BMC Komprehensif</span>
+          <h2 class="slide-title">9 Elemen Business Model Canvas (WisataFlow)</h2>
+        </div>
+        <span class="slide-tag">Klik kotak untuk detail</span>
+      </div>
+
+      <div class="bmc-grid-container">
+        <div class="bmc-cell cell-partners" onclick="showBmcDetail('partners')">
+          <span class="bmc-num">08</span>
+          <div class="bmc-cell-title">Key Partners</div>
+          <ul class="bmc-preview-list">
+            <li>Pengelola BUMDes & Swasta</li>
+            <li>Dinas Pariwisata Daerah</li>
+            <li>Kementerian Pariwisata RI</li>
+            <li>Payment gateway tiket</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-activities" onclick="showBmcDetail('activities')">
+          <span class="bmc-num">07</span>
+          <div class="bmc-cell-title">Key Activities</div>
+          <ul class="bmc-preview-list">
+            <li>Pengembangan algoritma kuota dinamis</li>
+            <li>Audit kalkulasi daya dukung area</li>
+            <li>Pendampingan & SOP petugas loket</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-resources" onclick="showBmcDetail('resources')">
+          <span class="bmc-num">06</span>
+          <div class="bmc-cell-title">Key Resources</div>
+          <ul class="bmc-preview-list">
+            <li>Platform cloud visitor management</li>
+            <li>Model statistik forecasting kuota</li>
+            <li>Tim analis operasional & pariwisata</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-value" onclick="showBmcDetail('value')">
+          <span class="bmc-num">02</span>
+          <div class="bmc-cell-title">Value Propositions</div>
+          <ul class="bmc-preview-list">
+            <li>Pengendalian overtourism & kuota slot</li>
+            <li>Reduksi antrean spot puncak s.d. 40%</li>
+            <li>Dashboard heatmap zona real-time</li>
+            <li>Perlindungan aset ekologis wisata</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-relations" onclick="showBmcDetail('relations')">
+          <span class="bmc-num">04</span>
+          <div class="bmc-cell-title">Customer Relations</div>
+          <ul class="bmc-preview-list">
+            <li>Pendampingan setup kapasitas awal</li>
+            <li>Laporan mingguan kepadatan & audit</li>
+            <li>Layanan darurat teknis akhir pekan</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-channels" onclick="showBmcDetail('channels')">
+          <span class="bmc-num">03</span>
+          <div class="bmc-cell-title">Channels</div>
+          <ul class="bmc-preview-list">
+            <li>Penjualan langsung B2B/B2G ke destinasi</li>
+            <li>Asosiasi Pengelola Destinasi (PUTRI)</li>
+            <li>Portal pemesanan web pelancong</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-segments" onclick="showBmcDetail('segments')">
+          <span class="bmc-num">01</span>
+          <div class="bmc-cell-title">Customer Segments</div>
+          <ul class="bmc-preview-list">
+            <li>Pengelola destinasi wisata alam/BUMDes</li>
+            <li>Balai Taman Nasional & Konservasi</li>
+            <li>Dinas Kebudayaan & Pariwisata Pemda</li>
+            <li>Pengelola taman rekreasi tematik</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-cost" onclick="showBmcDetail('cost')">
+          <span class="bmc-num">09</span>
+          <div class="bmc-cell-title">Cost Structure</div>
+          <ul class="bmc-preview-list">
+            <li>Infrastruktur server cloud & bandwidth | Biaya survei audit carrying capacity destinasi | Gaji tim engineering & operasional | Pelatihan staf loket mitra</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-revenue" onclick="showBmcDetail('revenue')">
+          <span class="bmc-num">05</span>
+          <div class="bmc-cell-title">Revenue Streams</div>
+          <ul class="bmc-preview-list">
+            <li>Langganan SaaS bulanan destinasi (Rp500rb–Rp6jt/bln) | Biaya setup & audit kapasitas awal | Fee sistem ticketing per transaksi (Rp1.000–Rp2.000/tiket)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bmc-detail-box" id="bmcDetailBox">
+        <h4 id="detailBoxTitle">Detail Elemen BMC</h4>
+        <p id="detailBoxContent">Pilih salah satu kotak di atas untuk melihat justifikasi kuantitatif dan penjelasan mendalam.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: SIMULATOR PERATAAN KERUMUNAN -->
+    <section class="slide" id="slide-8">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 07 • Lab Simulasi</span>
+          <h2 class="slide-title">Simulasi Perataan Jam Kunjungan (Slot Smoothing)</h2>
+        </div>
+        <span class="slide-tag">Interactive Crowd Balancer</span>
+      </div>
+
+      <div class="sim-container">
+        <div class="sim-controls">
+          <h3 style="color:#fff;">Skenario Destinasi Wisata Akhir Pekan</h3>
+
+          <div class="control-group">
+            <label><span>Total Pengunjung Harian:</span> <strong id="lblTuris" style="color:var(--accent);">2.400 Orang</strong></label>
+            <input type="range" min="500" max="5000" step="100" value="2400" class="slider-input" id="rngTuris" oninput="runWisataSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Batas Daya Dukung Aman per Jam:</span> <strong id="lblCap" style="color:#38bdf8;">400 Orang / Jam</strong></label>
+            <input type="range" min="200" max="800" step="50" value="400" class="slider-input" id="rngCap" oninput="runWisataSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Status Kebijakan Slot WisataFlow:</span> <strong id="lblPolicy" style="color:#34d399;">Aktif (Kuota Terbagi)</strong></label>
+            <input type="range" min="0" max="1" step="1" value="1" class="slider-input" id="rngPolicy" oninput="runWisataSim()">
+          </div>
+        </div>
+
+        <div class="sim-result">
+          <span style="font-size:0.85rem; color:var(--text-sub); text-transform:uppercase;">Tingkat Kepadatan Jam Puncak (11.00–13.00)</span>
+          <div class="sim-res-val" id="resPeakCrowd">380 Orang / Jam (Aman)</div>
+
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span>Estimasi Waktu Antre Tiket/Spot:</span>
+              <strong id="resWaitTime" style="color:#34d399;">8 Menit (Lancar)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span>Status Daya Dukung Lingkungan:</span>
+              <strong id="resStatusCap" style="color:#38bdf8;">Terkendali (Di Bawah Batas PCC)</strong>
+            </div>
+            <div style="font-size:0.8rem; color:#bae6fd; margin-top:8px;" id="resSimExpl">
+              *Dengan pembagian 4 slot kedatangan merata, penumpukan ekstrim di tengah hari berhasil dipangkas dan disebar ke sesi pagi & sore.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: RENCANA VALIDASI LAPANGAN -->
+    <section class="slide" id="slide-9">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah Terakhir • Rencana Aksi</span>
+          <h2 class="slide-title">Roadmap Validasi Lapangan Menuju Lomba BMC</h2>
+        </div>
+        <span class="slide-tag">Action Plan Polstat STIS</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 1</div>
+          <h3>Wawancara Pengelola Destinasi (2–3 Lokasi)</h3>
+          <p>Kunjungi pengelola objek wisata alam lokal/BUMDes. Tanyakan kendala terberat saat libur panjang (panjang antrean parkir, keluhan wisatawan, dan sampah).</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 2</div>
+          <h3>Hitung Carrying Capacity Kasus Nyata</h3>
+          <p>Ukur luas spot utama dan hitung Physical Carrying Capacity (PCC). Bandingkan dengan jumlah tiket yang dijual di hari libur terpadat.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 3</div>
+          <h3>Penyusunan Proposal BMC Final</h3>
+          <p>Gunakan data primer perbandingan daya dukung vs pengunjung riil sebagai dasar kuantitatif Value Propositions pada BMC kompetisi.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem; text-align:center;">
+        <a href="konsep-5-edumap.html" class="back-hub" style="background:var(--primary); color:#fff; padding:10px 20px; font-size:0.95rem;">
+          Lanjut ke Konsep 5: EduMap (Teknologi Pendidikan) →
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 9;
+
+    function showSlide(index) {
+      if (index < 1 || index > totalSlides) return;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide').forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+
+      document.getElementById('slideIndicator').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      document.getElementById('progressBar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      
+      document.getElementById('prevBtn').disabled = (currentSlide === 1);
+      document.getElementById('nextBtn').disabled = (currentSlide === totalSlides);
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextSlide() { if (currentSlide < totalSlides) showSlide(currentSlide + 1); }
+    function prevSlide() { if (currentSlide > 1) showSlide(currentSlide - 1); }
+
+    document.addEventListener('keydown', (e) => {
+      if (document.body.classList.contains('doc-mode')) return;
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); prevSlide(); }
+      else if (e.key === 'Home') showSlide(1);
+      else if (e.key === 'End') showSlide(totalSlides);
+    });
+
+    function toggleViewMode() {
+      document.body.classList.toggle('doc-mode');
+      const isDoc = document.body.classList.contains('doc-mode');
+      document.getElementById('viewToggleBtn').textContent = isDoc ? '🖥️ Mode Slide' : '📄 Mode Dokumen';
+    }
+
+    const bmcDetails = {
+      segments: {
+        title: "1. Customer Segments (Kuantitatif)",
+        content: "Pengelola destinasi wisata alam, budaya, dan buatan skala menengah (BUMDes, pengelola swasta) dengan kunjungan 1.000–20.000 wisatawan/bulan, Balai Pengelola Taman Nasional/Kawasan Konservasi, serta Dinas Kebudayaan dan Pariwisata Pemerintah Daerah."
+      },
+      value: {
+        title: "2. Value Propositions",
+        content: "Mereduksi antrean jam puncak hingga 40% melalui kuota reservasi slot dinamis, memantau kepadatan antar-zona secara waktu nyata untuk keselamatan pelancong, serta menjaga kelestarian daya dukung ekologis destinasi jangka panjang."
+      },
+      channels: {
+        title: "3. Channels",
+        content: "Penjualan B2B/B2G langsung ke pengelola destinasi, forum kemitraan Asosiasi Pengelola Destinasi Pariwisata (PUTRI), seminar pariwisata berkelanjutan, dan portal reservasi online."
+      },
+      relations: {
+        title: "4. Customer Relationships",
+        content: "Pendampingan audit carrying capacity di lokasi awal, pelatihan operasional staf loket pintu masuk, laporan analitik arus mobilitas bulanan, dan bantuan respon insiden cepat."
+      },
+      revenue: {
+        title: "5. Revenue Streams",
+        content: "Langganan SaaS bulanan destinasi (Rp500.000–Rp6.000.000/bulan tergantung skala pintu masuk dan zona), biaya jasa audit carrying capacity dan setup awal, serta opsi biaya transaksi pemesanan tiket."
+      },
+      resources: {
+        title: "6. Key Resources",
+        content: "Platform perangkat lunak manajemen kuota cloud, model peramalan statistik kepadatan pengunjung, database kapasitas daya dukung per zona, serta tim ahli pariwisata dan teknologi."
+      },
+      activities: {
+        title: "7. Key Activities",
+        content: "Pengembangan sistem alokasi slot dinamis, pemantauan performa antrean pintu masuk, kalibrasi ambang batas carrying capacity bersama ahli ekologi, dan evaluasi kepuasan wisatawan."
+      },
+      partners: {
+        title: "8. Key Partners",
+        content: "Pengelola destinasi dan paguyuban warga lokal, Dinas Pariwisata Daerah, Kementerian Pariwisata RI, Badan Pusat Statistik (data acuan ODYTW), dan payment gateway tiket."
+      },
+      cost: {
+        title: "9. Cost Structure",
+        content: "Infrastruktur server cloud skala dinamis, survei lapangan audit kapasitas, gaji tim pengembang perangkat lunak, serta biaya pelatihan staf lapangan dan operasional kemitraan."
+      }
+    };
+
+    function showBmcDetail(key) {
+      document.querySelectorAll('.bmc-cell').forEach(c => c.classList.remove('active-cell'));
+      event.currentTarget.classList.add('active-cell');
+
+      const box = document.getElementById('bmcDetailBox');
+      const data = bmcDetails[key];
+      if (data) {
+        document.getElementById('detailBoxTitle').textContent = data.title;
+        document.getElementById('detailBoxContent').textContent = data.content;
+        box.classList.add('show');
+      }
+    }
+
+    function runWisataSim() {
+      const turis = parseInt(document.getElementById('rngTuris').value);
+      const cap = parseInt(document.getElementById('rngCap').value);
+      const policy = parseInt(document.getElementById('rngPolicy').value);
+
+      document.getElementById('lblTuris').textContent = turis.toLocaleString('id-ID') + " Orang";
+      document.getElementById('lblCap').textContent = cap + " Orang / Jam";
+      document.getElementById('lblPolicy').textContent = (policy === 1) ? "Aktif (Kuota Terbagi)" : "Non-Aktif (Bebas Masuk)";
+
+      let peakVisitors = 0;
+      let waitMinutes = 0;
+
+      if (policy === 1) {
+        // Distributed evenly across 6-7 operational hours
+        peakVisitors = Math.round(turis / 6.5);
+        if (peakVisitors > cap) {
+          peakVisitors = cap; // hard cap active!
+        }
+        waitMinutes = Math.round(5 + (peakVisitors / cap) * 5);
+      } else {
+        // Free for all: 45% of daily visitors arrive in 2-hour peak
+        peakVisitors = Math.round((turis * 0.45) / 2);
+        waitMinutes = Math.round(((peakVisitors - cap) > 0 ? (peakVisitors - cap) * 0.12 : 5) + 12);
+      }
+
+      let isOver = peakVisitors > cap;
+      document.getElementById('resPeakCrowd').textContent = peakVisitors + " Orang / Jam " + (isOver ? "⚠️ OVERLOAD" : "✅ AMAN");
+      document.getElementById('resPeakCrowd').style.color = isOver ? "#f87171" : "#34d399";
+
+      document.getElementById('resWaitTime').textContent = waitMinutes + " Menit";
+      document.getElementById('resWaitTime').style.color = (waitMinutes > 20) ? "#f87171" : "#34d399";
+
+      document.getElementById('resStatusCap').textContent = isOver ? "Melebihi Kapasitas Lingkungan (Rawan Rusak)" : "Terkendali & Memenuhi Standar Kemenpar";
+      document.getElementById('resStatusCap').style.color = isOver ? "#f87171" : "#38bdf8";
+
+      document.getElementById('resSimExpl').textContent = (policy === 1)
+        ? "*Dengan pembagian sesi reservasi berkuota, penumpukan berhasil diratakan sehingga wisatawan tidak perlu antre berjejal dan daya dukung terlindungi."
+        : "⚠️ Tanpa kuota, 45% turis menumpuk di jam makan siang, menyebabkan antrean parah, parkir membludak, dan fasilitas tertekan melampaui daya dukung.";
+    }
+
+    showSlide(1);
+    runWisataSim();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konsep 2: SisaLaku | Presentasi Interaktif BMC Dies Natalis STIS 68</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #ea580c;
+      --primary-dark: #7c2d12;
+      --primary-light: #f97316;
+      --accent: #fbbf24;
+      --accent-soft: rgba(251, 191, 36, 0.15);
+      --bg-dark: #1a0c06;
+      --bg-card: #2c160b;
+      --bg-card-hover: #3d2012;
+      --text-light: #fff7ed;
+      --text-muted: #fdba74;
+      --text-sub: #fed7aa;
+      --border: rgba(249, 115, 22, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 15% 20%, rgba(234, 88, 12, 0.22) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 75%, rgba(251, 191, 36, 0.12) 0%, transparent 45%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1.8rem;
+      background: rgba(26, 12, 6, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-hub {
+      text-decoration: none;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .back-hub:hover { background: var(--primary); color: #fff; }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .badge-code {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .view-toggle {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text-light);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .view-toggle:hover { background: rgba(255, 255, 255, 0.15); }
+
+    .ctrl-btn {
+      background: var(--primary);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .ctrl-btn:hover { background: var(--primary-light); transform: scale(1.05); }
+    .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .slide-indicator {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      min-width: 85px;
+      text-align: center;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 54px;
+      z-index: 99;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 11.1%;
+      transition: width 0.3s ease;
+    }
+
+    .deck-viewport {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      min-height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.8rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      animation: slideIn 0.35s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide.active { display: block; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .slide-step {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    .slide-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.1rem;
+      color: #fff;
+      margin-top: 4px;
+    }
+    .slide-tag {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    /* Slide 1 - Cover */
+    .cover-hero { text-align: center; padding: 2.5rem 1rem; }
+    .cover-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(234, 88, 12, 0.2);
+      border: 1px solid var(--primary-light);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #fed7aa;
+      margin-bottom: 1.5rem;
+    }
+    .cover-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+      background: linear-gradient(135deg, #fff7ed 20%, #fb923c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cover-tagline {
+      font-size: 1.35rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .cover-desc {
+      max-width: 800px;
+      margin: 0 auto 2.5rem;
+      font-size: 1.05rem;
+      color: #e2e8f0;
+      line-height: 1.65;
+    }
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .meta-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+    }
+    .meta-box h4 { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+    .meta-box p { font-size: 0.95rem; font-weight: 600; color: #fff; }
+
+    .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+
+    .card-panel {
+      background: rgba(26, 12, 6, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .card-panel h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-panel p, .card-panel li {
+      font-size: 0.92rem;
+      color: #fed7aa;
+      margin-bottom: 0.6rem;
+    }
+    ul.bullet-list { padding-left: 1.2rem; }
+    ul.bullet-list li { margin-bottom: 0.5rem; }
+
+    .stat-callout {
+      background: linear-gradient(135deg, rgba(234, 88, 12, 0.25), rgba(124, 45, 18, 0.4));
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-big {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      color: #fb923c;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-caption { font-size: 0.95rem; color: #fff7ed; font-weight: 500; }
+    .stat-source { font-size: 0.78rem; color: var(--text-sub); margin-top: 4px; }
+
+    /* 9-Block BMC Grid */
+    .bmc-grid-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .bmc-cell {
+      background: rgba(44, 22, 11, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .bmc-cell:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+    .bmc-cell.active-cell {
+      border-color: var(--accent);
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    .cell-partners { grid-column: 1 / 2; grid-row: 1 / 3; }
+    .cell-activities { grid-column: 2 / 3; grid-row: 1 / 2; }
+    .cell-resources { grid-column: 2 / 3; grid-row: 2 / 3; }
+    .cell-value { grid-column: 3 / 4; grid-row: 1 / 3; }
+    .cell-relations { grid-column: 4 / 5; grid-row: 1 / 2; }
+    .cell-channels { grid-column: 4 / 5; grid-row: 2 / 3; }
+    .cell-segments { grid-column: 5 / 6; grid-row: 1 / 3; }
+    .cell-cost { grid-column: 1 / 4; grid-row: 3 / 4; }
+    .cell-revenue { grid-column: 4 / 6; grid-row: 3 / 4; }
+
+    .bmc-num {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .bmc-cell-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .bmc-preview-list { font-size: 0.8rem; color: #fed7aa; padding-left: 1rem; }
+    .bmc-preview-list li { margin-bottom: 3px; }
+
+    .bmc-detail-box {
+      margin-top: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      background: rgba(234, 88, 12, 0.15);
+      border: 1px solid var(--primary-light);
+      border-radius: 12px;
+      display: none;
+    }
+    .bmc-detail-box.show { display: block; animation: slideIn 0.2s ease-out; }
+    .bmc-detail-box h4 { color: #fff; margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif; }
+    .bmc-detail-box p { font-size: 0.92rem; color: #fff7ed; }
+
+    /* Simulator */
+    .sim-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 1.8rem;
+      border: 1px solid var(--border);
+    }
+    .sim-controls { display: flex; flex-direction: column; gap: 1.2rem; }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .slider-input {
+      width: 100%;
+      height: 8px;
+      background: #7c2d12;
+      border-radius: 5px;
+      outline: none;
+      accent-color: var(--primary-light);
+    }
+    .sim-result {
+      background: rgba(44, 22, 11, 0.9);
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .sim-res-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0.5rem 0;
+    }
+
+    body.doc-mode .slide { display: block !important; margin-bottom: 3rem; }
+    body.doc-mode .deck-controls { display: none; }
+    body.doc-mode .progress-bar-container { display: none; }
+
+    @media (max-width: 900px) {
+      .grid-2col, .grid-3col, .sim-container { grid-template-columns: 1fr; }
+      .bmc-grid-container { display: flex; flex-direction: column; }
+      .cover-title { font-size: 2.4rem; }
+      .slide { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <header class="top-bar">
+    <div class="brand-group">
+      <a href="index.html" class="back-hub">← Hub Portal</a>
+      <span class="badge-code">B1 • KULINER & PANGAN</span>
+      <span class="brand-title">SisaLaku / PorsiPas</span>
+      <a href="konsep-umkm-insight.html" class="back-hub" style="background:rgba(10,117,100,0.2); border-color:#ea580c; color:#fdba74; font-size:0.8rem;">📊 Bandingkan dgn UMKM Insight</a>
+    </div>
+    
+    <div class="deck-controls">
+      <button class="view-toggle" id="viewToggleBtn" onclick="toggleViewMode()">📄 Mode Dokumen</button>
+      <button class="ctrl-btn" id="prevBtn" onclick="prevSlide()" title="Slide Sebelumnya">‹</button>
+      <div class="slide-indicator" id="slideIndicator">Slide 1 / 9</div>
+      <button class="ctrl-btn" id="nextBtn" onclick="nextSlide()" title="Slide Berikutnya">›</button>
+    </div>
+  </header>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <main class="deck-viewport">
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide active" id="slide-1">
+      <div class="cover-hero">
+        <div class="cover-pill">🍲 Subtema 2: Kuliner dan Produk Pangan • Dies Natalis ke-68 Polstat STIS</div>
+        <h1 class="cover-title">SisaLaku</h1>
+        <div class="cover-tagline">“Produksi Lebih Tepat, Makanan Tak Terbuang.”</div>
+        <p class="cover-desc">
+          Platform analitik cerdas & demand forecasting produksi untuk UMKM kuliner harian (bakery, kafe, katering, kantin).
+          Mengoptimalkan jumlah porsi berdasarkan data historis transaksi, hari gajian, cuaca, dan kalender acara—mencegah kerugian HPP akibat makanan tidak terjual.
+        </p>
+
+        <div class="cover-meta-grid">
+          <div class="meta-box">
+            <h4>Kode Masalah</h4>
+            <p>B1 – Produk Makanan Sering Sisa</p>
+          </div>
+          <div class="meta-box">
+            <h4>Target Utama</h4>
+            <p>Bakery, Katering, Kafe, Kantin Kampus</p>
+          </div>
+          <div class="meta-box">
+            <h4>Basis Data</h4>
+            <p>Kajian FLW Bappenas, POS Transaksi UMKM</p>
+          </div>
+          <div class="meta-box">
+            <h4>Karakteristik</h4>
+            <p>Paling Cepat & Mudah Diuji Lapangan</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: URGENSI MASALAH UMKM KULINER -->
+    <section class="slide" id="slide-2">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 01 • Eksplorasi Masalah</span>
+          <h2 class="slide-title">Dilema Produksi UMKM: Sisa Rugi, Kurang Kehilangan Peluang</h2>
+        </div>
+        <span class="slide-tag">Pain Points UMKM</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>🏪 Siapa Calon Pelanggan Terdampak?</h3>
+          <ul class="bullet-list">
+            <li><strong>Bakery & Toko Roti Fresh:</strong> Produk hanya tahan 24-48 jam. Kelebihan adonan langsung jadi limbah/diskon rugi.</li>
+            <li><strong>Warung Makan / Kedai Fast-Casual:</strong> Menu lauk rentan basi bila cuaca mendadak hujan lebat di siang hari.</li>
+            <li><strong>Penyedia Katering & Snack Box:</strong> Variabilitas pemesanan mendadak tanpa pola penyangga stok terukur.</li>
+            <li><strong>Kantin Kampus / Sekolah / Perkantoran:</strong> Fluktuasi tajam antara hari libur, ujian, dan awal pekan.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>⚠️ Masalah Struktural Operasional</h3>
+          <ul class="bullet-list">
+            <li><strong>Produksi Berbasis "Firasat" (Gut-feeling):</strong> Jumlah batch dibuat sama tiap hari tanpa memperhitungkan pola hari atau tanggal gajian.</li>
+            <li><strong>Volatilitas Permintaan Eksternal:</strong> Hujan deras di jam makan siang dapat memangkas 40% pembeli walk-in.</li>
+            <li><strong>Biaya Bahan Baku Terbuang Sia-Sia:</strong> Makanan yang tidak habis memakan 10–25% HPP kotor bulanan UMKM.</li>
+            <li><strong>Catatan Sisa Tidak Sistematis:</strong> Pemilik tahu makanan sisa, tapi tidak tahu menu mana yang paling konsisten over-produced.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Rumusan Masalah Utama:</strong> “Bagaimana membantu UMKM kuliner memperkirakan kuantitas produksi harian yang presisi berbasis pola permintaan agar menekan unsold rate tanpa kehilangan omzet?”
+      </div>
+    </section>
+
+    <!-- SLIDE 3: DATA KUANTITATIF & STATISTIKA TIME-SERIES -->
+    <section class="slide" id="slide-3">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 02 • Bukti Data Empiris</span>
+          <h2 class="slide-title">Urgensi Food Waste & Landasan Statistik Peramalan</h2>
+        </div>
+        <span class="slide-tag">Kajian Bappenas & Metode Time Series</span>
+      </div>
+
+      <div class="grid-2col">
+        <div>
+          <div class="stat-callout">
+            <div class="stat-big">23–48 Juta Ton</div>
+            <div class="stat-caption">Timbulan Food Loss & Waste per tahun di Indonesia (115–184 kg/kapita/tahun).</div>
+            <div class="stat-source">Sumber: Kajian Food Loss and Waste (FLW) Indonesia – Kementerian PPN / Bappenas</div>
+          </div>
+
+          <div class="card-panel">
+            <h3>📉 Estimasi Sektor Non-Rumah Tangga</h3>
+            <p>Pada tahap konsumsi nasional (5–19 juta ton/tahun), ~20% timbulan berasal dari sektor non-rumah tangga (restoran, hotel, katering, ritel pangan).</p>
+            <p style="font-size:0.85rem; color:#fde047;">*Catatan metodologis: Angka makro nasional digunakan sebagai konteks urgensi, sementara besaran sisa UMKM diverifikasi lewat audit primer harian.</p>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <h3>📐 Metodologi Statistik Peramalan (Demand Forecasting)</h3>
+          <ul class="bullet-list">
+            <li><strong>Analisis Deret Waktu (Time-Series):</strong> Moving Average terbobot, Exponential Smoothing (Holt-Winters) untuk menangkap tren mingguan & musiman (weekend vs weekday).</li>
+            <li><strong>Evaluasi Presisi Model:</strong> Mengukur Mean Absolute Error (MAE), RMSE, dan MAPE untuk memilih model terbaik per SKU makanan:
+              <br><code style="color:#fde047;">MAPE = (1/n) Σ |(Actual - Forecast) / Actual| × 100%</code>
+            </li>
+            <li><strong>Audit Sisa Makanan Primer (Pilot Lapangan):</strong> Mengukur <em>Unsold Rate = (Porsi Sisa / Porsi Produksi) × 100%</em> selama 14–30 hari pada 3–5 UMKM mitra awal.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: SOLUSI PRODUK: PREVENSI + RESCUE -->
+    <section class="slide" id="slide-4">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 03 • Arsitektur Solusi</span>
+          <h2 class="slide-title">Fitur SisaLaku: Cegah Sebelum Jadi Sampah</h2>
+        </div>
+        <span class="slide-tag">Dual-Loop Solution</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📈</div>
+          <h3>1. Daily Demand Forecasting</h3>
+          <p>Rekomendasi jumlah batch produksi harian per menu dengan confidence interval (rentang toleransi aman, misal: 45–52 porsi).</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌦️</div>
+          <h3>2. Kalender & Weather Adjuster</h3>
+          <p>Otomatis mengoreksi estimasi produksi saat BMKG memprediksi badai hujan siang hari atau ada libur panjang (long weekend).</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">💰</div>
+          <h3>3. Kalkulator Kerugian HPP</h3>
+          <p>Mengonversi sisa porsi fisik menjadi nominal rupiah bahan baku yang terbuang, membuka mata pemilik terhadap kebocoran profit.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏪</div>
+          <h3>4. Surplus Clearance Channel</h3>
+          <p>Jika tetap terjadi sisa layak konsumsi di 2 jam sebelum tutup, sistem broadcast diskon flash sale ke konsumen terdekat (Rescue mode).</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📱</div>
+          <h3>5. Integrasi POS Ringan</h3>
+          <p>Dapat dimulai dari upload file Excel penjualan POS (Moka/majoo/Kasir Pintar) atau input manual ringkas 2 menit di akhir shift.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤝</div>
+          <h3>6. Food Rescue Partner Link</h3>
+          <p>Opsi mendonasikan surplus aman ke organisasi nirlaba penyelamatan pangan (seperti FoodCycle) untuk mendapatkan sertifikat CSR/lingkungan.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: KOMPETITOR & KEUNGGULAN KOMPETITIF -->
+    <section class="slide" id="slide-5">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 04 • Lanskap Pasar</span>
+          <h2 class="slide-title">Diferensiasi: Prevensi vs Penjualan Diskon Sisa</h2>
+        </div>
+        <span class="slide-tag">Competitive Edge</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>🏢 Pemain yang Ada & Celah Pasar</h3>
+          <ul class="bullet-list">
+            <li><strong>Surplus Indonesia & Flooty:</strong> Sangat bagus dalam menjual makanan berlebih (marketplace surplus). Namun sifatnya <em>kuratif / hilir</em> setelah makanan terlanjur berlebih. Merchant tetap menanggung margin diskon tipis.</li>
+            <li><strong>FoodCycle Indonesia:</strong> Nirlaba pengumpul surplus pangan untuk masyarakat pra-sejahtera (fokus filantropi & sosial).</li>
+            <li><strong>Aplikasi Kasir POS (Moka, majoo):</strong> Fokus pada pencatatan transaksi kasir & laporan penjualan statis, tanpa modul rekomendasi kuantitas batch besok pagi.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>🎯 Keunggulan Spesifik SisaLaku</h3>
+          <ul class="bullet-list">
+            <li><strong>Fokus Hulu (Prevensi di Sumbernya):</strong> Mencegah makanan berlebih diproduksi sejak awal adalah cara paling efektif melindungi margin HPP UMKM.</li>
+            <li><strong>Simulasi Batas Kadaluwarsa Berbeda:</strong> Membedakan algoritma untuk bakery basah (1 hari), pastry kering (3 hari), dan lauk matang (6 jam).</li>
+            <li><strong>Dapat Diuji Cepat (Low Barrier to Pilot):</strong> Hanya butuh 1-2 minggu riwayat struk penjualan UMKM untuk langsung membuktikan efektivitas akurasi prediksi.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: MODEL BISNIS & WILLINGNESS TO PAY -->
+    <section class="slide" id="slide-6">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 05 • Finansial</span>
+          <h2 class="slide-title">Struktur Harga & Nilai Tambah UMKM</h2>
+        </div>
+        <span class="slide-tag">Pricing Strategy</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel" style="border-top: 4px solid #f97316;">
+          <h4 style="color:#f97316; text-transform:uppercase; font-size:0.8rem;">Tier 1 – Pemula</h4>
+          <h3 style="margin: 0.5rem 0;">Paket Pencatatan</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Gratis <span style="font-size:0.85rem; color:#fed7aa;">/selamanya</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Pencatatan manual sisa harian</li>
+            <li>Grafik tren unsold bulanan sederhana</li>
+            <li>1 gerai / outlet</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid var(--accent); background: rgba(251, 191, 36, 0.08);">
+          <h4 style="color:var(--accent); text-transform:uppercase; font-size:0.8rem;">Tier 2 – Pro Merchant (Core)</h4>
+          <h3 style="margin: 0.5rem 0;">Smart Forecasting</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:var(--accent); margin-bottom:0.5rem;">Rp49rb – Rp79rb <span style="font-size:0.85rem; color:#fed7aa;">/gerai/bln</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Rekomendasi kuantitas produksi harian</li>
+            <li>Integrasi cuaca & kalender hari libur</li>
+            <li>Kanal flash sale surplus instan</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid #38bdf8;">
+          <h4 style="color:#38bdf8; text-transform:uppercase; font-size:0.8rem;">Tier 3 – Multi-Outlet / Jaringan</h4>
+          <h3 style="margin: 0.5rem 0;">Franchise & Jaringan</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Rp199rb – Rp499rb <span style="font-size:0.85rem; color:#fed7aa;">/bln</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Pengelolaan 3–10 cabang gerai kuliner</li>
+            <li>Integrasi API langsung ke database POS</li>
+            <li>Konsultasi audit efisiensi bahan bulanan</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Perhitungan ROI Nyata bagi UMKM:</strong> Jika bakery menghemat sisa 5 porsi roti per hari (HPP Rp4.000/pcs), penghematan bersih adalah <strong>Rp600.000 per bulan</strong>. Biaya langganan Rp49.000/bulan memberikan ROI lebih dari 12x lipat!
+      </div>
+    </section>
+
+    <!-- SLIDE 7: BUSINESS MODEL CANVAS (9 ELEMEN) -->
+    <section class="slide" id="slide-7">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 06 • BMC Komprehensif</span>
+          <h2 class="slide-title">9 Elemen Business Model Canvas (SisaLaku)</h2>
+        </div>
+        <span class="slide-tag">Klik kotak untuk detail</span>
+      </div>
+
+      <div class="bmc-grid-container">
+        <div class="bmc-cell cell-partners" onclick="showBmcDetail('partners')">
+          <span class="bmc-num">08</span>
+          <div class="bmc-cell-title">Key Partners</div>
+          <ul class="bmc-preview-list">
+            <li>Komunitas UMKM Kuliner</li>
+            <li>Vendor POS (Moka, Kasir Pintar)</li>
+            <li>FoodCycle (Rescue pangan)</li>
+            <li>Layanan kurir instan</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-activities" onclick="showBmcDetail('activities')">
+          <span class="bmc-num">07</span>
+          <div class="bmc-cell-title">Key Activities</div>
+          <ul class="bmc-preview-list">
+            <li>Pengembangan algoritma peramalan</li>
+            <li>Validasi akurasi prediksi vs riil</li>
+            <li>Onboarding data POS merchant</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-resources" onclick="showBmcDetail('resources')">
+          <span class="bmc-num">06</span>
+          <div class="bmc-cell-title">Key Resources</div>
+          <ul class="bmc-preview-list">
+            <li>Model statistik time-series</li>
+            <li>Database transaksi kuliner</li>
+            <li>Platform SaaS & tim data</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-value" onclick="showBmcDetail('value')">
+          <span class="bmc-num">02</span>
+          <div class="bmc-cell-title">Value Propositions</div>
+          <ul class="bmc-preview-list">
+            <li>Prediksi produksi harian presisi</li>
+            <li>Penurunan unsold rate s.d. 30%</li>
+            <li>Audit kebocoran rupiah HPP</li>
+            <li>Saluran penyelamatan surplus</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-relations" onclick="showBmcDetail('relations')">
+          <span class="bmc-num">04</span>
+          <div class="bmc-cell-title">Customer Relations</div>
+          <ul class="bmc-preview-list">
+            <li>Konsultasi onboarding awal data</li>
+            <li>Laporan penghematan mingguan</li>
+            <li>Customer support WhatsApp</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-channels" onclick="showBmcDetail('channels')">
+          <span class="bmc-num">03</span>
+          <div class="bmc-cell-title">Channels</div>
+          <ul class="bmc-preview-list">
+            <li>Aplikasi Web & Mobile SaaS</li>
+            <li>Komunitas kuliner & workshop</li>
+            <li>Integrasi plugin POS store</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-segments" onclick="showBmcDetail('segments')">
+          <span class="bmc-num">01</span>
+          <div class="bmc-cell-title">Customer Segments</div>
+          <ul class="bmc-preview-list">
+            <li>UMKM Bakery & Pastry</li>
+            <li>Katering & Pengelola Kantin</li>
+            <li>Restoran / Kafe cepat saji</li>
+            <li>Jaringan gerai kuliner lokal</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-cost" onclick="showBmcDetail('cost')">
+          <span class="bmc-num">09</span>
+          <div class="bmc-cell-title">Cost Structure</div>
+          <ul class="bmc-preview-list">
+            <li>Server cloud & API hosting | Pengembangan model machine learning | Pemasaran & customer support merchant | Biaya integrasi POS</li>
+          </ul>
+        </div>
+
+        <div class="bmc-cell cell-revenue" onclick="showBmcDetail('revenue')">
+          <span class="bmc-num">05</span>
+          <div class="bmc-cell-title">Revenue Streams</div>
+          <ul class="bmc-preview-list">
+            <li>Langganan SaaS per gerai (Rp49rb–Rp79rb/bln) | Paket Multi-outlet (Rp199k-Rp499k/bln) | Potensi komisi penjualan surplus (5–10%)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bmc-detail-box" id="bmcDetailBox">
+        <h4 id="detailBoxTitle">Detail Elemen BMC</h4>
+        <p id="detailBoxContent">Pilih salah satu kotak di atas untuk melihat justifikasi kuantitatif dan penjelasan mendalam.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: SIMULATOR INTERAKTIF PENGHEMATAN HPP UMKM -->
+    <section class="slide" id="slide-8">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 07 • Lab Simulasi</span>
+          <h2 class="slide-title">Kalkulator Penghematan HPP & Reduksi Sisa Makanan</h2>
+        </div>
+        <span class="slide-tag">Interactive ROI Estimator</span>
+      </div>
+
+      <div class="sim-container">
+        <div class="sim-controls">
+          <h3 style="color:#fff;">Profil UMKM Kuliner Harian</h3>
+
+          <div class="control-group">
+            <label><span>Rata-rata Produksi Harian (Porsi):</span> <strong id="lblProd" style="color:var(--accent);">150 Porsi</strong></label>
+            <input type="range" min="30" max="500" step="10" value="150" class="slider-input" id="rngProd" oninput="runSisaSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Harga Pokok Penjualan (HPP per porsi):</span> <strong id="lblHpp" style="color:#f97316;">Rp 12.000</strong></label>
+            <input type="range" min="3000" max="40000" step="1000" value="12000" class="slider-input" id="rngHpp" oninput="runSisaSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Tingkat Sisa Sebelum Forecasting (%):</span> <strong id="lblWasteBefore" style="color:#f87171;">16%</strong></label>
+            <input type="range" min="5" max="35" step="1" value="16" class="slider-input" id="rngWasteBefore" oninput="runSisaSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Efektivitas Reduksi Forecasting SisaLaku:</span> <strong id="lblReduksi" style="color:#34d399;">50% Reduksi</strong></label>
+            <input type="range" min="20" max="70" step="5" value="50" class="slider-input" id="rngReduksi" oninput="runSisaSim()">
+          </div>
+        </div>
+
+        <div class="sim-result">
+          <span style="font-size:0.85rem; color:var(--text-sub); text-transform:uppercase;">Estimasi Penghematan Bahan Baku Bulanan</span>
+          <div class="sim-res-val" id="resSavedMoney">Rp 4.320.000</div>
+
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span>Porsi Makanan Terselamatkan:</span>
+              <strong id="resPorsiSaved" style="color:#34d399;">360 Porsi / Bulan</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span>Unsold Rate Baru:</span>
+              <strong id="resNewRate" style="color:var(--accent);">8% (Turun dari 16%)</strong>
+            </div>
+            <div style="font-size:0.8rem; color:#fed7aa; margin-top:8px;">
+              *Dengan biaya berlangganan software Rp49.000/bulan, UMKM mendapatkan laba efisiensi <strong>88x lipat dari biaya langganan</strong>!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: RENCANA PILOT & VALIDASI PRIMER -->
+    <section class="slide" id="slide-9">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah Terakhir • Rencana Aksi</span>
+          <h2 class="slide-title">Rencana Uji Coba Cepat (Pilot 14 Hari)</h2>
+        </div>
+        <span class="slide-tag">Action Plan Tercepat Diuji</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Minggu 1</div>
+          <h3>Audit Sisa Primer (Baseline)</h3>
+          <p>Gandeng 3 UMKM bakery/kantin dekat kampus Polstat STIS. Catat data produksi aktual, penjualan kasir, dan hitung porsi sisa fisik setiap sore selama 7 hari.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Minggu 2</div>
+          <h3>Uji Rekomendasi Sederhana</h3>
+          <p>Gunakan spreadsheet time-series forecasting untuk memberikan saran batch pagi. Bandingkan apakah porsi sisa menurun tanpa menurunkan total omzet.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Minggu 3</div>
+          <h3>Penyusunan Proposal BMC Final</h3>
+          <p>Masukkan hasil penurunan unsold rate (misal: turun dari 18% ke 9%) ke dalam proposal lomba BMC sebagai bukti kuantitatif validasi nyata.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem; text-align:center;">
+        <a href="konsep-3-skinmatch.html" class="back-hub" style="background:var(--primary); color:#fff; padding:10px 20px; font-size:0.95rem;">
+          Lanjut ke Konsep 3: SkinMatch (Kesehatan & Kecantikan) →
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 9;
+
+    function showSlide(index) {
+      if (index < 1 || index > totalSlides) return;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide').forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+
+      document.getElementById('slideIndicator').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      document.getElementById('progressBar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      
+      document.getElementById('prevBtn').disabled = (currentSlide === 1);
+      document.getElementById('nextBtn').disabled = (currentSlide === totalSlides);
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextSlide() { if (currentSlide < totalSlides) showSlide(currentSlide + 1); }
+    function prevSlide() { if (currentSlide > 1) showSlide(currentSlide - 1); }
+
+    document.addEventListener('keydown', (e) => {
+      if (document.body.classList.contains('doc-mode')) return;
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); prevSlide(); }
+      else if (e.key === 'Home') showSlide(1);
+      else if (e.key === 'End') showSlide(totalSlides);
+    });
+
+    function toggleViewMode() {
+      document.body.classList.toggle('doc-mode');
+      const isDoc = document.body.classList.contains('doc-mode');
+      document.getElementById('viewToggleBtn').textContent = isDoc ? '🖥️ Mode Slide' : '📄 Mode Dokumen';
+    }
+
+    const bmcDetails = {
+      segments: {
+        title: "1. Customer Segments (Kuantitatif)",
+        content: "UMKM kuliner makanan segar dan berdaya simpan pendek (bakery fresh, katering harian, kedai makanan cepat saji, kantin kampus/kantor) dengan omzet Rp15 juta–Rp150 juta/bulan yang memproduksi makanan harian di tempat."
+      },
+      value: {
+        title: "2. Value Propositions",
+        content: "Mereduksi produk tidak habis terjual (unsold rate) sebesar 30-50%, mengidentifikasi kebocoran rupiah HPP per menu secara transparan, serta menyediakan saluran flash sale penyelamatan surplus makanan layak konsumsi."
+      },
+      channels: {
+        title: "3. Channels",
+        content: "Aplikasi web responsif/PWA, marketplace plugin POS kasir (Moka, majoo, Kasir Pintar), asosiasi kuliner, dan komunitas merchant kawasan kuliner."
+      },
+      relations: {
+        title: "4. Customer Relationships",
+        content: "Konsultasi setup data riwayat penjualan, laporan ringkasan dampak efisiensi mingguan, support via WhatsApp bisnis, dan komunitas sharing optimasi stok kuliner."
+      },
+      revenue: {
+        title: "5. Revenue Streams",
+        content: "Subskripsi SaaS per gerai (Rp49.000–Rp79.000/bulan), paket multi-outlet/franchise (Rp199.000–Rp499.000/bulan), dan opsi take-rate komisi 5-10% dari transaksi clearance surplus."
+      },
+      resources: {
+        title: "6. Key Resources",
+        content: "Algoritma demand forecasting time-series teradaptasi cuaca/kalender, basis data transaksi penjualan, infrastruktur server cloud cepat, serta tim data scientist dan analis kuliner."
+      },
+      activities: {
+        title: "7. Key Activities",
+        content: "Pengembangan dan tuning model peramalan (evaluasi MAPE harian), validasi audit sisa pangan bersama merchant mitra, integrasi API POS, serta manajemen kampanye surplus makanan."
+      },
+      partners: {
+        title: "8. Key Partners",
+        content: "Penyedia aplikasi kasir (POS), organisasi nirlaba penyelamatan pangan (FoodCycle Indonesia), asosiasi UMKM pangan, dan penyedia logistik pengiriman instan."
+      },
+      cost: {
+        title: "9. Cost Structure",
+        content: "Server cloud & data processing, pengembangan software/API, biaya akuisisi merchant (sales B2B), customer success, serta operasional kepatuhan keamanan pangan."
+      }
+    };
+
+    function showBmcDetail(key) {
+      document.querySelectorAll('.bmc-cell').forEach(c => c.classList.remove('active-cell'));
+      event.currentTarget.classList.add('active-cell');
+
+      const box = document.getElementById('bmcDetailBox');
+      const data = bmcDetails[key];
+      if (data) {
+        document.getElementById('detailBoxTitle').textContent = data.title;
+        document.getElementById('detailBoxContent').textContent = data.content;
+        box.classList.add('show');
+      }
+    }
+
+    function runSisaSim() {
+      const prod = parseInt(document.getElementById('rngProd').value);
+      const hpp = parseInt(document.getElementById('rngHpp').value);
+      const wasteBefore = parseInt(document.getElementById('rngWasteBefore').value);
+      const reduksi = parseInt(document.getElementById('rngReduksi').value);
+
+      document.getElementById('lblProd').textContent = prod + " Porsi";
+      document.getElementById('lblHpp').textContent = "Rp " + hpp.toLocaleString('id-ID');
+      document.getElementById('lblWasteBefore').textContent = wasteBefore + "%";
+      document.getElementById('lblReduksi').textContent = reduksi + "% Reduksi";
+
+      const dailyWastePorsi = prod * (wasteBefore / 100);
+      const porsiSavedDaily = dailyWastePorsi * (reduksi / 100);
+      const porsiSavedMonthly = Math.round(porsiSavedDaily * 30);
+      const savedMoneyMonthly = porsiSavedMonthly * hpp;
+      const newWasteRate = wasteBefore * (1 - (reduksi / 100));
+
+      document.getElementById('resSavedMoney').textContent = "Rp " + savedMoneyMonthly.toLocaleString('id-ID');
+      document.getElementById('resPorsiSaved').textContent = porsiSavedMonthly + " Porsi / Bulan";
+      document.getElementById('resNewRate').textContent = newWasteRate.toFixed(1) + "% (Turun dari " + wasteBefore + "%)";
+    }
+
+    showSlide(1);
+    runSisaSim();
+  </script>
+</body>
+</html>

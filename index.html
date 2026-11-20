@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Konsep Bisnis Berbasis Data | Dies Natalis ke-68 Polstat STIS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --accent: #f59e0b;
+      --dark: #0f172a;
+      --dark-card: #1e293b;
+      --light-bg: #f8fafc;
+      --border: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      
+      --c1: #059669; /* TaniData */
+      --c2: #ea580c; /* SisaLaku */
+      --c3: #db2777; /* SkinMatch */
+      --c4: #0284c7; /* WisataFlow */
+      --c5: #6366f1; /* EduMap */
+      --c6: #0a7564; /* UMKM Insight */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0b1120;
+      color: #f1f5f9;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Background Effect */
+    .bg-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.18) 0%, transparent 45%),
+                  radial-gradient(circle at 85% 75%, rgba(245, 158, 11, 0.12) 0%, transparent 40%),
+                  radial-gradient(circle at 50% 50%, rgba(10, 117, 100, 0.12) 0%, transparent 60%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    header {
+      padding: 2.2rem 2rem 1.4rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      background: rgba(15, 23, 42, 0.75);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .badge-event {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .title-group h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.95rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      margin-top: 6px;
+    }
+
+    .title-group p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    .quick-nav {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* Hero Section */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.55) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-banner::after {
+      content: 'STIS 68';
+      position: absolute;
+      right: 20px;
+      bottom: -25px;
+      font-size: 8rem;
+      font-weight: 900;
+      font-family: 'Space Grotesk', sans-serif;
+      color: rgba(255, 255, 255, 0.03);
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #60a5fa;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .hero-banner h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      line-height: 1.25;
+    }
+
+    .hero-banner p {
+      color: #cbd5e1;
+      max-width: 860px;
+      font-size: 1.05rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .hero-stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      margin-top: 1rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .hero-stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+    }
+
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .stat-label {
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+
+    /* Section Titles */
+    .section-header {
+      margin-bottom: 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .section-subtitle {
+      color: #94a3b8;
+      font-size: 0.92rem;
+    }
+
+    /* Grid of Concepts */
+    .concepts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.8rem;
+      margin-bottom: 4rem;
+    }
+
+    .concept-card {
+      background: rgba(30, 41, 59, 0.7);
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .concept-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.6);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .card-top {
+      padding: 1.6rem 1.6rem 1.2rem;
+      position: relative;
+    }
+
+    .concept-tag-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .concept-code {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .concept-subtheme {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.4rem;
+    }
+
+    .card-tagline {
+      font-size: 0.9rem;
+      font-style: italic;
+      color: #cbd5e1;
+      margin-bottom: 1rem;
+    }
+
+    .problem-box {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      margin-bottom: 1.2rem;
+      border-left: 3px solid;
+    }
+
+    .problem-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+      color: #94a3b8;
+    }
+
+    .problem-text {
+      font-size: 0.87rem;
+      color: #e2e8f0;
+      line-height: 1.45;
+    }
+
+    .card-stats {
+      background: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 1rem 1.6rem;
+    }
+
+    .stat-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    .stat-pill {
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    .card-footer {
+      padding: 1.4rem 1.6rem;
+      margin-top: auto;
+      display: flex;
+      gap: 0.8rem;
+    }
+
+    .launch-btn {
+      flex: 1;
+      text-align: center;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-decoration: none;
+      color: #ffffff;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .launch-btn:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+    }
+
+    /* Specific Card Accents */
+    .theme-1 { --theme-color: var(--c1); }
+    .theme-2 { --theme-color: var(--c2); }
+    .theme-3 { --theme-color: var(--c3); }
+    .theme-4 { --theme-color: var(--c4); }
+    .theme-5 { --theme-color: var(--c5); }
+    .theme-6 { --theme-color: var(--c6); }
+
+    .theme-1 .concept-code { background: rgba(5, 150, 105, 0.2); color: #34d399; }
+    .theme-1 .problem-box { border-left-color: var(--c1); }
+    .theme-1 .launch-btn { background: linear-gradient(135deg, #059669, #10b981); }
+
+    .theme-2 .concept-code { background: rgba(234, 88, 12, 0.2); color: #fb923c; }
+    .theme-2 .problem-box { border-left-color: var(--c2); }
+    .theme-2 .launch-btn { background: linear-gradient(135deg, #ea580c, #f97316); }
+
+    .theme-3 .concept-code { background: rgba(219, 39, 119, 0.2); color: #f472b6; }
+    .theme-3 .problem-box { border-left-color: var(--c3); }
+    .theme-3 .launch-btn { background: linear-gradient(135deg, #db2777, #ec4899); }
+
+    .theme-4 .concept-code { background: rgba(2, 132, 199, 0.2); color: #38bdf8; }
+    .theme-4 .problem-box { border-left-color: var(--c4); }
+    .theme-4 .launch-btn { background: linear-gradient(135deg, #0284c7, #38bdf8); }
+
+    .theme-5 .concept-code { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+    .theme-5 .problem-box { border-left-color: var(--c5); }
+    .theme-5 .launch-btn { background: linear-gradient(135deg, #6366f1, #818cf8); }
+
+    .theme-6 .concept-code { background: rgba(10, 117, 100, 0.25); color: #4fd1b6; }
+    .theme-6 .problem-box { border-left-color: var(--c6); }
+    .theme-6 .launch-btn { background: linear-gradient(135deg, #0a7564, #14b8a6); }
+
+    /* Deep Dive Perbedaan Khusus: UMKM Insight vs SisaLaku */
+    .compare-deepdive-box {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85));
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 18px;
+      padding: 2.2rem;
+      margin-bottom: 3.5rem;
+    }
+    .deepdive-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.2rem;
+    }
+    .deepdive-tag {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+    .deepdive-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin-top: 1.4rem;
+    }
+    .deepdive-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 1.4rem;
+    }
+    .deepdive-card h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Comparison Table Section */
+    .matrix-section {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 1.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: rgba(15, 23, 42, 0.85);
+      padding: 14px 16px;
+      font-weight: 700;
+      color: #94a3b8;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 15px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      vertical-align: top;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .tag-highlight {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    /* Validation Guidelines Card */
+    .guideline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .guide-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 14px;
+      padding: 1.4rem;
+      position: relative;
+    }
+
+    .guide-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fbbf24;
+      line-height: 1;
+      margin-bottom: 0.6rem;
+    }
+
+    .guide-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .guide-desc {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      line-height: 1.45;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      color: #64748b;
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 900px) {
+      .header-container { flex-direction: column; align-items: flex-start; }
+      .hero-banner h2 { font-size: 1.6rem; }
+      .concepts-grid { grid-template-columns: 1fr; }
+      .deepdive-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <header>
+    <div class="header-container">
+      <div class="title-group">
+        <div class="badge-event">Dies Natalis ke-68 AIS / STIS / Polstat STIS</div>
+        <h1>Portal Konsep Bisnis Berbasis Data</h1>
+        <p>Bahan Ajar & Presentasi Interaktif Business Model Canvas (BMC) | 20 November 2026</p>
+      </div>
+      <div class="quick-nav">
+        <a href="konsep-1-tanidata.html" class="nav-btn" style="border-left: 3px solid #059669;">🌱 1. TaniData</a>
+        <a href="konsep-2-sisalaku.html" class="nav-btn" style="border-left: 3px solid #ea580c;">🍲 2. SisaLaku</a>
+        <a href="konsep-3-skinmatch.html" class="nav-btn" style="border-left: 3px solid #db2777;">✨ 3. SkinMatch</a>
+        <a href="konsep-4-wisataflow.html" class="nav-btn" style="border-left: 3px solid #0284c7;">🗺️ 4. WisataFlow</a>
+        <a href="konsep-5-edumap.html" class="nav-btn" style="border-left: 3px solid #6366f1;">🎓 5. EduMap</a>
+        <a href="konsep-umkm-insight.html" class="nav-btn" style="border-left: 3px solid #0a7564; background: rgba(10, 117, 100, 0.18); font-weight:700;">📊 UMKM Insight</a>
+        <a href="bmc-suite-unified.html" class="nav-btn" style="border: 1px solid #38bdf8; background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight:700;">⚡ Buka Versi All-in-One (1 File)</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+      <span class="hero-tag">Tema Lomba Utama</span>
+      <h2>Transformasi Ide Bisnis Berbasis Data sebagai Akselerator Menuju Indonesia Emas 2045</h2>
+      <p>
+        Setiap alternatif ide dirancang dengan fondasi data statistik sekunder nasional (BPS, Bank Indonesia, SNLIK OJK, Bappenas, BPOM, BMKG, Kemendikdasmen), 
+        dirumuskan ke dalam <strong>9 Elemen Business Model Canvas</strong>, serta disiapkan untuk proses validasi primer menuju proposal final kompetisi.
+      </p>
+
+      <div class="hero-stats-row">
+        <div class="hero-stat-card">
+          <div class="stat-number">6 Modul</div>
+          <div class="stat-label">Alternatif Ide Bisnis Terintegrasi</div>
+        </div>
+        <div class="hero-stat-card">
+          <div class="stat-number">9 Blok</div>
+          <div class="stat-label">Struktur Lengkap Business Model Canvas</div>
+        </div>
+        <div class="hero-stat-card">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Kuantitatif & Berbasis Bukti Statistik</div>
+        </div>
+        <div class="hero-stat-card">
+          <div class="stat-number">7–9 Langkah</div>
+          <div class="stat-label">Roadmap Validasi Primer Menuju Proposal</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grid Konsep Interaktif -->
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Pilihan Modul Presentasi Interaktif</h2>
+        <p class="section-subtitle">Pilih modul di bawah untuk meninjau slide deck interaktif, live calculator statistik, dan BMC 9-elemen terperinci</p>
+      </div>
+    </div>
+
+    <div class="concepts-grid">
+
+      <!-- Konsep Baru: UMKM Insight -->
+      <div class="concept-card theme-6" style="grid-column: span 1; border: 1.5px solid rgba(79, 209, 182, 0.35);">
+        <div class="card-top">
+          <div class="concept-tag-bar">
+            <span class="concept-code">Terintegrasi</span>
+            <span class="concept-subtheme">Decision Intelligence & Fintech</span>
+          </div>
+          <h3 class="card-title">UMKM Insight</h3>
+          <p class="card-tagline">“From Business Data to Better Decisions.”</p>
+          <div class="problem-box">
+            <div class="problem-label">Urgensi Masalah</div>
+            <div class="problem-text">Pemilik UMKM memiliki data transaksi kasir/Excel tetapi kesulitan mengubahnya jadi info laba riil, analisis margin Pareto, dan penentuan stok.</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-indicator">
+            <span class="stat-pill" style="background:rgba(10,117,100,0.3); color:#4fd1b6;">90,76%</span>
+            <span>UMKM belum pakai POS digital (Survei 10.142 UMKM Bank Indonesia)</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <a href="konsep-umkm-insight.html" class="launch-btn">
+            Buka Presentasi UMKM Insight (18 Slide) →
+          </a>
+        </div>
+      </div>
+      
+      <!-- Konsep 1: TaniData -->
+      <div class="concept-card theme-1">
+        <div class="card-top">
+          <div class="concept-tag-bar">
+            <span class="concept-code">Kode A8</span>
+            <span class="concept-subtheme">Subtema 1: Agribisnis</span>
+          </div>
+          <h3 class="card-title">TaniData / TaniInsight</h3>
+          <p class="card-tagline">“Data Pertanian, Keputusan Lebih Terarah.”</p>
+          <div class="problem-box">
+            <div class="problem-label">Urgensi Masalah</div>
+            <div class="problem-text">Rendahnya adopsi teknologi & pencatatan budidaya. Petani kesulitan menghubungkan biaya input pupuk/benih dengan hasil panen.</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-indicator">
+            <span class="stat-pill">53,16%</span>
+            <span>Petani belum memakai alsintan modern/digital (Sensus Pertanian 2023 BPS)</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <a href="konsep-1-tanidata.html" class="launch-btn">
+            Buka Presentasi TaniData (9 Slide) →
+          </a>
+        </div>
+      </div>
+
+      <!-- Konsep 2: SisaLaku -->
+      <div class="concept-card theme-2">
+        <div class="card-top">
+          <div class="concept-tag-bar">
+            <span class="concept-code">Kode B1</span>
+            <span class="concept-subtheme">Subtema 2: Kuliner & Pangan</span>
+          </div>
+          <h3 class="card-title">SisaLaku / PorsiPas</h3>
+          <p class="card-tagline">“Produksi Lebih Tepat, Makanan Tak Terbuang.”</p>
+          <div class="problem-box">
+            <div class="problem-label">Urgensi Masalah</div>
+            <div class="problem-text">Produksi UMKM makanan kerap tidak habis terjual karena penentuan jumlah produksi hanya berdasarkan intuisi, menimbulkan kerugian HPP.</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-indicator">
+            <span class="stat-pill">23–48 Juta Ton</span>
+            <span>Food Loss & Waste per tahun di Indonesia (Kajian Bappenas)</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <a href="konsep-2-sisalaku.html" class="launch-btn">
+            Buka Presentasi SisaLaku (9 Slide) →
+          </a>
+        </div>
+      </div>
+
+      <!-- Konsep 3: SkinMatch -->
+      <div class="concept-card theme-3">
+        <div class="card-top">
+          <div class="concept-tag-bar">
+            <span class="concept-code">Kode C1</span>
+            <span class="concept-subtheme">Subtema 3: Kesehatan & Kecantikan</span>
+          </div>
+          <h3 class="card-title">SkinMatch / BeautyMatch</h3>
+          <p class="card-tagline">“Pilih Produk dengan Informasi yang Lebih Tepat.”</p>
+          <div class="problem-box">
+            <div class="problem-label">Urgensi Masalah</div>
+            <div class="problem-text">Banjir produk skincare membuat konsumen pemula bingung. Sering tergiur tren tanpa paham komposisi, kecocokan, dan legalitas BPOM.</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-indicator">
+            <span class="stat-pill">BPOM Verif</span>
+            <span>Filter legalitas berbasis notifikasi resmi BPOM & ingredient checker transparan</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <a href="konsep-3-skinmatch.html" class="launch-btn">
+            Buka Presentasi SkinMatch (9 Slide) →
+          </a>
+        </div>
+      </div>
+
+      <!-- Konsep 4: WisataFlow -->
+      <div class="concept-card theme-4">
+        <div class="card-top">
+          <div class="concept-tag-bar">
+            <span class="concept-code">Kode D5</span>
+            <span class="concept-subtheme">Subtema 4: Pariwisata & Kreatif</span>
+          </div>
+          <h3 class="card-title">WisataFlow / VisitFlow</h3>
+          <p class="card-tagline">“Sebarkan Kunjungan, Tingkatkan Kualitas Wisata.”</p>
+          <div class="problem-box">
+            <div class="problem-label">Urgensi Masalah</div>
+            <div class="problem-text">Kapasitas dan distribusi pengunjung belum optimal menyebabkan overtourism di jam puncak, degradasi lingkungan, dan antrean ekstrem.</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-indicator">
+            <span class="stat-pill">BPS & Kemenpar</span>
+            <span>Visitor Management System, kuota slot dinamis, dan perataan zona destinasi</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <a href="konsep-4-wisataflow.html" class="launch-btn">
+            Buka Presentasi WisataFlow (9 Slide) →
+          </a>
+        </div>
+      </div>
+
+      <!-- Konsep 5: EduMap -->
+      <div class="concept-card theme-5">
+        <div class="card-top">
+          <div class="concept-tag-bar">
+            <span class="concept-code">Kode E3</span>
+            <span class="concept-subtheme">Subtema 5: Teknologi Pendidikan & Keuangan</span>
+          </div>
+          <h3 class="card-title">EduMap / EduEquity</h3>
+          <p class="card-tagline">“Data untuk Pendidikan yang Lebih Merata.”</p>
+          <div class="problem-box">
+            <div class="problem-label">Urgensi Masalah</div>
+            <div class="problem-text">Kesenjangan akses fasilitas, distribusi guru, dan konektivitas sekolah antarwilayah. Alokasi intervensi sosial/anggaran kerap kurang presisi.</div>
+          </div>
+        </div>
+        <div class="card-stats">
+          <div class="stat-indicator">
+            <span class="stat-pill">Index &lt; 0.4</span>
+            <span>Kesenjangan distribusi guru SMP/MTs di beberapa wilayah (Rapor Pendidikan 2025)</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <a href="konsep-5-edumap.html" class="launch-btn">
+            Buka Presentasi EduMap (9 Slide) →
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Deep-Dive Analisis Perbedaan: UMKM Insight vs SisaLaku -->
+    <section class="compare-deepdive-box">
+      <div class="deepdive-header">
+        <span class="deepdive-tag">Analisis Komparasi Mendalam</span>
+        <h3 style="font-family:'Space Grotesk', sans-serif; font-size:1.4rem; color:#fff;">
+          Perbedaan Fokus: UMKM Insight vs SisaLaku
+        </h3>
+      </div>
+      <p style="color:#cbd5e1; font-size:0.95rem;">
+        Kedua konsep membidik sektor UMKM dan memanfaatkan peramalan (forecasting), namun memiliki sudut pandang problematis, ruang lingkup modul, dan metrik keberhasilan yang berbeda signifikan:
+      </p>
+
+      <div class="deepdive-grid">
+        <div class="deepdive-card" style="border-left: 4px solid #0a7564;">
+          <h4 style="color:#4fd1b6;">📊 UMKM Insight (Decision Intelligence Terpadu)</h4>
+          <ul style="padding-left:1.2rem; font-size:0.88rem; color:#cbd5e1; line-height:1.6;">
+            <li><strong>Fokus Masalah:</strong> Literasi finansial dan analitik bisnis umum. Pemilik tahu omzet kasir tetapi buta margin laba kotor, produk Pareto bermargin tertinggi, dan dampak promosi.</li>
+            <li><strong>Ruang Lingkup Solusi:</strong> <em>Business Performance Analytics</em> (omzet vs margin), <em>Multi-model Forecasting</em> (Holt-Winters, ARIMA, Random Forest), <em>Reorder Point Stok</em>, dan <em>Decision Impact Evaluation</em>.</li>
+            <li><strong>Target Sektor:</strong> UMKM Ritel umum, F&B (kafe/kedai), hingga jasa mikro yang memiliki transaksi rutin.</li>
+            <li><strong>Diferensiasi:</strong> Analisis transparan yang menjelaskan alasan (*explainable*), input fleksibel via Excel/CSV, dan evaluasi dampak tindakan.</li>
+          </ul>
+        </div>
+
+        <div class="deepdive-card" style="border-left: 4px solid #ea580c;">
+          <h4 style="color:#fb923c;">🍲 SisaLaku (Spesialis Food Loss & Waste)</h4>
+          <ul style="padding-left:1.2rem; font-size:0.88rem; color:#cbd5e1; line-height:1.6;">
+            <li><strong>Fokus Masalah:</strong> Makanan yang cepat basi/rusak tidak habis terjual (unsold food waste) yang langsung membuang modal HPP harian.</li>
+            <li><strong>Ruang Lingkup Solusi:</strong> Peramalan batch produksi harian berdasarkan masa simpan produk (shelf-life), ditambah kanal <em>Clearance Flash Sale / Food Rescue</em> di jam tutup gerai.</li>
+            <li><strong>Target Sektor:</strong> Sangat spesifik pada kuliner berdaya simpan pendek (Bakery, Restoran cepat saji, Katering, Kantin).</li>
+            <li><strong>Diferensiasi:</strong> Solusi dual-loop (pencegahan hulu lewat prediksi porsi + penyelamatan hilir lewat donasi/diskon surplus).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabel Matriks Perbandingan 6 Konsep -->
+    <section class="matrix-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Matriks Perbandingan Lengkap Seluruh Alternatif Ide</h2>
+          <p class="section-subtitle">Evaluasi kelayakan untuk seleksi proposal Business Model Canvas Dies Natalis Polstat STIS</p>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Konsep & Subtema</th>
+              <th>Masalah Pokok</th>
+              <th>Customer Pembayar Utama</th>
+              <th>Kekuatan Analisis Data</th>
+              <th>Pesaing Teridentifikasi</th>
+              <th>Tantangan & Kelayakan Pilot</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: rgba(10, 117, 100, 0.08);">
+              <td><strong style="color:#4fd1b6">UMKM Insight</strong><br><small style="color:#94a3b8">Decision Intelligence / Fintech</small></td>
+              <td>Data transaksi ada tapi belum jadi insight keputusan; stok & promosi masih spekulatif</td>
+              <td>Pemilik UMKM F&B dan ritel mikro dengan transaksi harian rutin</td>
+              <td>Explainable Analytics, Time-series forecasting (MAE/RMSE/MAPE), Decision Impact Evaluation</td>
+              <td>DariData, OWNIS, FIRALA, Warungin, POS (Moka, majoo, Kasir Pintar)</td>
+              <td><span class="tag-highlight" style="background:rgba(34, 197, 94, 0.2); color:#4ade80">Sangat Tinggi (Bisa impor Excel/POS)</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#34d399">1. TaniData</strong><br><small>Agribisnis (A8)</small></td>
+              <td>Rendahnya adopsi teknologi & pencatatan budidaya terukur</td>
+              <td>Kelompok Tani, Koperasi, CSR Agribisnis, Dinas Pertanian</td>
+              <td>Analisis regresi input-output panen, tren biaya, iklim BMKG</td>
+              <td>Semaai, Elevarm, aplikasi penyuluhan, buku kas manual</td>
+              <td><span class="tag-highlight" style="background:rgba(234, 179, 8, 0.2); color:#fde047">Sedang (Perlu kemitraan Poktan)</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#fb923c">2. SisaLaku</strong><br><small>Kuliner & Pangan (B1)</small></td>
+              <td>Makanan tidak habis terjual, estimasi produksi harian spekulatif</td>
+              <td>UMKM kuliner harian, Bakery, Katering, Kafe multi-outlet</td>
+              <td>Time-series demand forecasting (MA, Holt-Winters), estimasi rupiah HPP sisa</td>
+              <td>Surplus ID, Flooty, FoodCycle, POS kasir</td>
+              <td><span class="tag-highlight" style="background:rgba(34, 197, 94, 0.2); color:#4ade80">Sangat Tinggi (Pilot tercepat diuji)</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#f472b6">3. SkinMatch</strong><br><small>Kesehatan/Kecantikan (C1)</small></td>
+              <td>Konsumen bingung memilih produk, risiko bahan iritan & legalitas BPOM</td>
+              <td>Konsumen premium (B2C), Brand lokal & Retailer (B2B Analitik)</td>
+              <td>Content-based filtering, segmentasi preferensi survei, database BPOM</td>
+              <td>BPOM Mobile, SKINS, INCI Beauty, SkinSort</td>
+              <td><span class="tag-highlight" style="background:rgba(59, 130, 246, 0.2); color:#60a5fa">Tinggi (Bisa via web/survei)</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#38bdf8">4. WisataFlow</strong><br><small>Pariwisata & Kreatif (D5)</small></td>
+              <td>Overtourism, penumpukan pengunjung di spot/jam tertentu</td>
+              <td>Pengelola destinasi (BUMDes/Taman Nasional), Pemda/Dispar</td>
+              <td>Forecasting kunjungan, simulasi antrean, optimasi kuota slot dinamis</td>
+              <td>SiOra Komodo, Loket, karcis manual</td>
+              <td><span class="tag-highlight" style="background:rgba(234, 179, 8, 0.2); color:#fde047">Sedang (Butuh akses destinasi)</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#818cf8">5. EduMap</strong><br><small>Teknologi Pendidikan (E3)</small></td>
+              <td>Kesenjangan fasilitas & mutu pendidikan antarwilayah</td>
+              <td>Pemerintah Daerah, Dinas Pendidikan, Yayasan/Lembaga CSR</td>
+              <td>Indeks komposit kesenjangan (PCA/Entropy), pemetaan GIS spasial</td>
+              <td>Rapor Pendidikan, NPD, Dapodik, Rumah Belajar</td>
+              <td><span class="tag-highlight" style="background:rgba(239, 68, 68, 0.2); color:#f87171">Rendah-Sedang (Siklus B2G panjang)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 7–9 Langkah Pedoman Validasi -->
+    <section>
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Pedoman Validasi Lapangan Sebelum Finalisasi BMC</h2>
+          <p class="section-subtitle">Kriteria guidebook lomba: Data sekunder nasional harus disempurnakan dengan riset primer kuantitatif & kualitatif</p>
+        </div>
+      </div>
+
+      <div class="guideline-grid">
+        <div class="guide-card">
+          <div class="guide-number">01</div>
+          <div class="guide-title">Segmen Pelanggan Spesifik</div>
+          <div class="guide-desc">Hindari target terlalu umum ("seluruh UMKM"). Fokuslah pada klaster awal (misal: "Kedai kopi & makanan santai di Jakarta Timur").</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-number">02</div>
+          <div class="guide-title">Wawancara Eksplorasi (10–15 Pemilik)</div>
+          <div class="guide-desc">Tanyakan bagaimana mereka mencatat penjualan dan keputusan apa yang paling sering membuat mereka ragu atau salah langkah.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-number">03</div>
+          <div class="guide-title">Ukur dengan Data Primer</div>
+          <div class="guide-desc">Kumpulkan angka nyata: berapa % produk yang terbuang, berapa jam rekap manual bulanan, atau berapa selisih margin yang tak terdeteksi.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-number">04</div>
+          <div class="guide-title">Uji Willingness to Pay (WTP)</div>
+          <div class="guide-desc">Jangan sekadar tanya "apakah tertarik?". Tanyakan: "Jika platform ini menghemat Rp1 juta per bulan, berapa biaya bulanan yang wajar Anda bayar?".</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-number">05</div>
+          <div class="guide-title">Buat Prototipe Sederhana (MVP)</div>
+          <div class="guide-desc">Mulai dari spreadsheet forecasting, template Excel cerdas, atau visualisasi sederhana sebelum membangun sistem penuh.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-number">06</div>
+          <div class="guide-title">Bandingkan Pesaing Langsung</div>
+          <div class="guide-desc">Buka situs DariData, FIRALA, Warungin, dan Moka POS. Verifikasi fitur dan paket harga aktual agar proposisi nilai Anda terbukti unik.</div>
+        </div>
+        <div class="guide-card">
+          <div class="guide-number">07</div>
+          <div class="guide-title">Pilih 1 Ide Terbaik & Finalisasi BMC</div>
+          <div class="guide-desc">Pilih konsep dengan masalah paling riil, data paling mudah diakses/diolah, diferensiasi tajam, dan model bisnis yang realistis diuji.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 Tim Pengembang Konsep Bisnis Berbasis Data – Disusun untuk Dies Natalis ke-68 AIS / STIS / Polstat STIS</p>
+    <p style="margin-top: 6px; font-size: 0.8rem; color: #475569;">Gunakan menu navigasi di atas untuk menjelajahi slide presentasi interaktif dan Business Model Canvas tiap subtema.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konsep 1: TaniData | Presentasi Interaktif BMC Dies Natalis STIS 68</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #059669;
+      --primary-dark: #064e3b;
+      --primary-light: #10b981;
+      --accent: #f59e0b;
+      --accent-soft: rgba(245, 158, 11, 0.15);
+      --bg-dark: #061c14;
+      --bg-card: #0c2b20;
+      --bg-card-hover: #12382b;
+      --text-light: #ecfdf5;
+      --text-muted: #6ee7b7;
+      --text-sub: #a7f3d0;
+      --border: rgba(16, 185, 129, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Background */
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 10% 20%, rgba(5, 150, 105, 0.2) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.12) 0%, transparent 45%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Top Navigation Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1.8rem;
+      background: rgba(6, 28, 20, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-hub {
+      text-decoration: none;
+      color: var(--text-sub);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .back-hub:hover { background: var(--primary); color: #fff; }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .badge-code {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .view-toggle {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: var(--text-light);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .view-toggle:hover { background: rgba(255, 255, 255, 0.15); }
+
+    .ctrl-btn {
+      background: var(--primary);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+    }
+    .ctrl-btn:hover { background: var(--primary-light); transform: scale(1.05); }
+    .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .slide-indicator {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      min-width: 85px;
+      text-align: center;
+    }
+
+    /* Progress bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 54px;
+      z-index: 99;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 11.1%;
+      transition: width 0.3s ease;
+    }
+
+    /* Presentation Deck Viewport */
+    .deck-viewport {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      min-height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.8rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: slideIn 0.35s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide.active { display: block; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide Header */
+    .slide-header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .slide-step {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    .slide-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.1rem;
+      color: #fff;
+      margin-top: 4px;
+    }
+    .slide-tag {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    /* Slide 1 - Cover */
+    .cover-hero {
+      text-align: center;
+      padding: 2.5rem 1rem;
+    }
+    .cover-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--primary-light);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: #a7f3d0;
+      margin-bottom: 1.5rem;
+    }
+    .cover-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+      background: linear-gradient(135deg, #ecfdf5 20%, #34d399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cover-tagline {
+      font-size: 1.35rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    .cover-desc {
+      max-width: 800px;
+      margin: 0 auto 2.5rem;
+      font-size: 1.05rem;
+      color: #cbd5e1;
+      line-height: 1.65;
+    }
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .meta-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+    }
+    .meta-box h4 { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+    .meta-box p { font-size: 0.95rem; font-weight: 600; color: #fff; }
+
+    /* Content Layouts */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .card-panel {
+      background: rgba(6, 28, 20, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .card-panel h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem;
+      color: #fff;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-panel p, .card-panel li {
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      margin-bottom: 0.6rem;
+    }
+    ul.bullet-list { padding-left: 1.2rem; }
+    ul.bullet-list li { margin-bottom: 0.5rem; }
+
+    /* Data Callout */
+    .stat-callout {
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.25), rgba(6, 78, 59, 0.4));
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-big {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      color: #34d399;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .stat-caption {
+      font-size: 0.95rem;
+      color: #ecfdf5;
+      font-weight: 500;
+    }
+    .stat-source {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    /* 9-Block BMC Interactive Grid */
+    .bmc-grid-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .bmc-cell {
+      background: rgba(12, 43, 32, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .bmc-cell:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    }
+    .bmc-cell.active-cell {
+      border-color: var(--accent);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .cell-partners { grid-column: 1 / 2; grid-row: 1 / 3; }
+    .cell-activities { grid-column: 2 / 3; grid-row: 1 / 2; }
+    .cell-resources { grid-column: 2 / 3; grid-row: 2 / 3; }
+    .cell-value { grid-column: 3 / 4; grid-row: 1 / 3; }
+    .cell-relations { grid-column: 4 / 5; grid-row: 1 / 2; }
+    .cell-channels { grid-column: 4 / 5; grid-row: 2 / 3; }
+    .cell-segments { grid-column: 5 / 6; grid-row: 1 / 3; }
+    .cell-cost { grid-column: 1 / 4; grid-row: 3 / 4; }
+    .cell-revenue { grid-column: 4 / 6; grid-row: 3 / 4; }
+
+    .bmc-num {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .bmc-cell-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .bmc-preview-list {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      padding-left: 1rem;
+    }
+    .bmc-preview-list li { margin-bottom: 3px; }
+
+    /* BMC Modal/Drawer */
+    .bmc-detail-box {
+      margin-top: 1.2rem;
+      padding: 1.2rem 1.5rem;
+      background: rgba(5, 150, 105, 0.15);
+      border: 1px solid var(--primary-light);
+      border-radius: 12px;
+      display: none;
+    }
+    .bmc-detail-box.show { display: block; animation: slideIn 0.2s ease-out; }
+    .bmc-detail-box h4 { color: #fff; margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif; }
+    .bmc-detail-box p { font-size: 0.92rem; color: #ecfdf5; }
+
+    /* Interactive Simulator */
+    .sim-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      padding: 1.8rem;
+      border: 1px solid var(--border);
+    }
+    .sim-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .slider-input {
+      width: 100%;
+      height: 8px;
+      background: #1e3a8a;
+      border-radius: 5px;
+      outline: none;
+      accent-color: var(--primary-light);
+    }
+    .sim-result {
+      background: rgba(12, 43, 32, 0.9);
+      border: 1px solid var(--primary-light);
+      border-radius: 14px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .sim-res-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0.5rem 0;
+    }
+
+    /* Overview Document Mode */
+    body.doc-mode .slide {
+      display: block !important;
+      margin-bottom: 3rem;
+    }
+    body.doc-mode .deck-controls { display: none; }
+    body.doc-mode .progress-bar-container { display: none; }
+
+    @media (max-width: 900px) {
+      .grid-2col, .grid-3col, .sim-container { grid-template-columns: 1fr; }
+      .bmc-grid-container { display: flex; flex-direction: column; }
+      .cover-title { font-size: 2.4rem; }
+      .slide { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="brand-group">
+      <a href="index.html" class="back-hub">← Hub Portal</a>
+      <span class="badge-code">A8 • AGRIBISNIS</span>
+      <span class="brand-title">TaniData / TaniInsight</span>
+      <a href="konsep-umkm-insight.html" class="back-hub" style="background:rgba(10,117,100,0.2); border-color:#059669; color:#6ee7b7; font-size:0.8rem;">📊 Buka UMKM Insight</a>
+    </div>
+    
+    <div class="deck-controls">
+      <button class="view-toggle" id="viewToggleBtn" onclick="toggleViewMode()">📄 Mode Dokumen</button>
+      <button class="ctrl-btn" id="prevBtn" onclick="prevSlide()" title="Slide Sebelumnya (Panah Kiri)">‹</button>
+      <div class="slide-indicator" id="slideIndicator">Slide 1 / 9</div>
+      <button class="ctrl-btn" id="nextBtn" onclick="nextSlide()" title="Slide Berikutnya (Panah Kanan / Spasi)">›</button>
+    </div>
+  </header>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <main class="deck-viewport">
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide active" id="slide-1">
+      <div class="cover-hero">
+        <div class="cover-pill">🌱 Subtema 1: Agribisnis • Dies Natalis ke-68 Polstat STIS</div>
+        <h1 class="cover-title">TaniData</h1>
+        <div class="cover-tagline">“Data Pertanian, Keputusan Lebih Terarah.”</div>
+        <p class="cover-desc">
+          Platform pendamping keputusan berbasis data (Decision Support System) untuk petani, kelompok tani, dan penyuluh.
+          Mengintegrasikan catatan budidaya, input pupuk/benih, cuaca BMKG, dan hasil panen menjadi rekomendasi terukur yang transparan dan aplikatif.
+        </p>
+
+        <div class="cover-meta-grid">
+          <div class="meta-box">
+            <h4>Kode Masalah</h4>
+            <p>A8 – Rendahnya Adopsi Teknologi</p>
+          </div>
+          <div class="meta-box">
+            <h4>Target Awal</h4>
+            <p>Kelompok Tani Hortikultura & Pangan</p>
+          </div>
+          <div class="meta-box">
+            <h4>Basis Data</h4>
+            <p>Sensus Pertanian 2023, BMKG, Panel Pangan</p>
+          </div>
+          <div class="meta-box">
+            <h4>Model Bisnis</h4>
+            <p>B2B / B2G Subskripsi & CSR Kemitraan</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: URGENSI MASALAH & TARGET PELANGGAN -->
+    <section class="slide" id="slide-2">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 01 • Eksplorasi Masalah</span>
+          <h2 class="slide-title">Calon Pelanggan & Urgensi Masalah Lapangan</h2>
+        </div>
+        <span class="slide-tag">Rumusan Masalah Inti</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>👥 Siapa Calon Pelanggan Utama?</h3>
+          <ul class="bullet-list">
+            <li><strong>Kelompok Tani (Poktan) & Gapoktan:</strong> Memerlukan rekapitulasi data anggota untuk perencanaan pupuk subsidi dan koordinasi panen.</li>
+            <li><strong>Koperasi Pertanian:</strong> Membutuhkan estimasi volume panen agregat untuk kepastian kontrak serap pasar.</li>
+            <li><strong>Penyuluh Pertanian Lapangan (PPL):</strong> Butuh peta riil performa budidaya binaan guna memprioritaskan penyuluhan agronomi.</li>
+            <li><strong>Pemerintah Daerah (Dinas Pertanian):</strong> Program digitalisasi pertanian dan stabilisasi pasokan pangan daerah.</li>
+            <li><strong>Petani Individual:</strong> Opsi bertahap setelah familiarisasi melalui pendampingan poktan.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>⚠️ 5 Masalah Nyata yang Dihadapi</h3>
+          <ul class="bullet-list">
+            <li><strong>Pencatatan Belum Konsisten:</strong> Jadwal tanam, dosis pemupukan, dan pengeluaran masih dicatat di kertas atau sekadar hafalan.</li>
+            <li><strong>Data Tersebar & Rumit:</strong> Informasi prakiraan iklim BMKG dan harga pasar sulit diterjemahkan ke takaran riil di lahan.</li>
+            <li><strong>Buta Efisiensi Input vs Output:</strong> Petani kesulitan membuktikan apakah pupuk tambahan benar-benar menaikkan laba bersih atau justru merugikan.</li>
+            <li><strong>Penyuluhan Kurang Presisi:</strong> Penyuluh kesulitan memantau ratusan petani tanpa dashboard ringkasan status lahan.</li>
+            <li><strong>Konektivitas Pedesaan Terbatas:</strong> Sebagian besar aplikasi agritech gagal karena mewajibkan koneksi internet cepat 24/7.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Rumusan Masalah Utama:</strong> “Bagaimana membantu petani dan kelompok tani memanfaatkan data sederhana untuk membuat keputusan budidaya yang lebih terukur, hemat biaya input, dan adaptif cuaca?”
+      </div>
+    </section>
+
+    <!-- SLIDE 3: BUKTI DATA & STATISTIK KUANTITATIF -->
+    <section class="slide" id="slide-3">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 02 • Bukti Empiris</span>
+          <h2 class="slide-title">Indikasi Kuantitatif & Landasan Statistik</h2>
+        </div>
+        <span class="slide-tag">Sensus Pertanian 2023 BPS</span>
+      </div>
+
+      <div class="grid-2col">
+        <div>
+          <div class="stat-callout">
+            <div class="stat-big">53,16%</div>
+            <div class="stat-caption">Petani di Indonesia BELUM menggunakan alsintan modern maupun teknologi digital untuk budidaya.</div>
+            <div class="stat-source">Sumber: Hasil Pencacahan Lengkap Sensus Pertanian 2023 – Badan Pusat Statistik (BPS)</div>
+          </div>
+
+          <div class="card-panel">
+            <h3>📊 Data Sekunder Pendukung</h3>
+            <ul class="bullet-list">
+              <li><strong>Data Iklim BMKG:</strong> Anomali curah hujan bulanan, suhu permukaan, dan indeks kekeringan.</li>
+              <li><strong>Panel Harga Pangan Bapanas:</strong> Disparitas harga produsen di tingkat petani vs konsumen akhir.</li>
+              <li><strong>Luas Panen & Produktivitas BPS (KSA):</strong> Benchmark produktivitas komoditas per hektar menurut kabupaten.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <h3>📐 Rencana Pengolahan & Model Statistik</h3>
+          <ul class="bullet-list">
+            <li><strong>Statistik Deskriptif & Segmentasi:</strong> Mengelompokkan petani berdasarkan luas lahan (<0.5 ha vs >1 ha) dan komoditas (cabai, padi, bawang).</li>
+            <li><strong>Analisis Korelasi & Regresi Berganda:</strong> Mengestimasi pengaruh variasi dosis pupuk NPK, intensitas air, dan jarak tanam terhadap kuintal hasil panen:
+              <br><code style="color:#fde047;">Yield = β₀ + β₁(Pupuk) + β₂(Hari Hujan) + β₃(Biaya Pestisida) + ε</code>
+            </li>
+            <li><strong>Validasi Data Primer Lapangan:</strong> Survei WTP, frekuensi pencatatan mingguan, dan uji coba pilot 1 kelompok tani (20–30 petani binaan).</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: SOLUSI & FITUR PRODUK UNGGULAN -->
+    <section class="slide" id="slide-4">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 03 • Arsitektur Solusi</span>
+          <h2 class="slide-title">Fitur Inti TaniData: Dari Catatan Menjadi Aksi</h2>
+        </div>
+        <span class="slide-tag">Product Architecture</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📝</div>
+          <h3>1. Catatan Budidaya Ringan & Offline</h3>
+          <p>Formulir input super simpel (bisa via WhatsApp Bot atau webview ringan). Bekerja 100% offline saat di sawah, lalu auto-sync saat mendapat sinyal.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+          <h3>2. Ringkasan Performa Usaha Tani</h3>
+          <p>Dashboard otomatis menghitung total biaya input (benih, pupuk, upah buruh tanam) dan membandingkannya dengan estimasi tonase hasil panen.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
+          <h3>3. Smart Insight & Early Alert</h3>
+          <p>Peringatan dini cerdas jika pengeluaran input melebihi rata-rata musim lalu atau jika BMKG memprediksi kemarau basah di fase pembuahan.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">💡</div>
+          <h3>4. Rekomendasi Terbuka (Explainable)</h3>
+          <p>Saran dosis pemupukan disertai alasan ilmiah berbasis kalender tanam dan arahan PPL, bukan black-box AI yang membingungkan petani.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
+          <h3>5. Mode Kelompok Tani & Penyuluh</h3>
+          <p>Ketua poktan dan penyuluh dapat memantau serentak sebaran fase tanam 50 anggota, mempermudah pengadaan pupuk bersama dan negosiasi tengkulak.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🤝</div>
+          <h3>6. Pendampingan Human-in-the-Loop</h3>
+          <p>TaniData menyertakan materi edukasi visual dan kader digital desa agar petani lansia tetap terakomodasi tanpa hambatan literasi.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: KOMPETITOR & CELAH DIFERENSIASI -->
+    <section class="slide" id="slide-5">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 04 • Lanskap Persaingan</span>
+          <h2 class="slide-title">Analisis Kompetitor & Keunggulan Kompetitif</h2>
+        </div>
+        <span class="slide-tag">Market Positioning</span>
+      </div>
+
+      <div class="grid-2col">
+        <div class="card-panel">
+          <h3>🏢 Pemain yang Ada & Batasannya</h3>
+          <ul class="bullet-list">
+            <li><strong>Semaai:</strong> Kuat di marketplace input pertanian (toko tani) & rantai pasok, namun fokus utamanya adalah transaksi dagang, bukan analisis agronomi mikro petani.</li>
+            <li><strong>Elevarm:</strong> Fokus pada ekosistem agritech terintegrasi, pembiayaan, dan komoditas off-taker skala menengah-besar.</li>
+            <li><strong>Aplikasi Kementan / Pemerintah:</strong> Seringkali bersifat top-down pelaporan administratif satu arah tanpa feedback langsung ke laba-rugi petani.</li>
+            <li><strong>Catatan Kertas / Buku Kas:</strong> Rentan hilang, sulit diagregasi, dan tidak menghasilkan insight prediksi musim depan.</li>
+          </ul>
+        </div>
+
+        <div class="card-panel">
+          <h3>🎯 4 Celah Diferensiasi Unik TaniData</h3>
+          <ul class="bullet-list">
+            <li><strong>Fokus Pada "Decision-Support", Bukan Jualan Pupuk:</strong> TaniData independen dan tidak memaksakan pembelian merek pestisida tertentu.</li>
+            <li><strong>Arsitektur Offline-First:</strong> Mengatasi kendala blank-spot di pedesaan Indonesia secara tuntas.</li>
+            <li><strong>Transparansi Alasan Rekomendasi:</strong> Setiap rekomendasi input selalu merujuk pada histori pencatatan dan panduan penyuluh resmi.</li>
+            <li><strong>Onboarding Berbasis Kelompok:</strong> Mengurangi friksi biaya adopsi karena didanai melalui kas poktan, koperasi, atau CSR.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: MODEL MONETISASI & HIPOTESIS WTP -->
+    <section class="slide" id="slide-6">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 05 • Keberlanjutan Finansial</span>
+          <h2 class="slide-title">Model Pendapatan & Willingness to Pay (WTP)</h2>
+        </div>
+        <span class="slide-tag">Revenue Streams</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel" style="border-top: 4px solid #10b981;">
+          <h4 style="color:#10b981; text-transform:uppercase; font-size:0.8rem;">Tier 1 – Individual</h4>
+          <h3 style="margin: 0.5rem 0;">Freemium / Petani</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Gratis <span style="font-size:0.9rem; color:#94a3b8;">– Rp25rb/bln</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Pencatatan dasar offline gratis selamanya</li>
+            <li>Rp15.000–Rp25.000/bln untuk fitur benchmark produktivitas lanjutan (opsional setelah validasi)</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid var(--accent); background: rgba(245, 158, 11, 0.08);">
+          <h4 style="color:var(--accent); text-transform:uppercase; font-size:0.8rem;">Tier 2 – Poktan / Koperasi (Core)</h4>
+          <h3 style="margin: 0.5rem 0;">Paket Kelompok Tani</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:var(--accent); margin-bottom:0.5rem;">Rp150rb – Rp300rb <span style="font-size:0.85rem; color:#94a3b8;">/poktan/bln</span></div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Mencakup s.d. 50 petani anggota poktan</li>
+            <li>Dashboard ketua poktan & rekap pupuk/panen</li>
+            <li>Sesi pendampingan kader tani bulanan</li>
+          </ul>
+        </div>
+
+        <div class="card-panel" style="border-top: 4px solid #38bdf8;">
+          <h4 style="color:#38bdf8; text-transform:uppercase; font-size:0.8rem;">Tier 3 – B2G / B2B Enterprise</h4>
+          <h3 style="margin: 0.5rem 0;">Dinas & CSR Agribisnis</h3>
+          <div style="font-size: 1.8rem; font-weight:700; color:#fff; margin-bottom:0.5rem;">Kemitraan Kontrak</div>
+          <ul class="bullet-list" style="font-size:0.85rem;">
+            <li>Lisensi agregasi per kecamatan / kabupaten</li>
+            <li>Pelatihan PPL terpadu & integrasi data spasial</li>
+            <li>Sponsor CSR off-taker komoditas hortikultura</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="stat-callout" style="margin-top: 1.5rem;">
+        <strong>Catatan Validasi WTP:</strong> Mengandalkan petani kecil membayar langsung secara individual sejak hari pertama berisiko tinggi. Strategi utama adalah <em>B2B/B2G via Kelompok Tani, Koperasi, dan Program CSR</em> yang sudah memiliki anggaran pembinaan petani.
+      </div>
+    </section>
+
+    <!-- SLIDE 7: INTERACTIVE BUSINESS MODEL CANVAS (9 ELEMEN) -->
+    <section class="slide" id="slide-7">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 06 • Sintesis Bisnis</span>
+          <h2 class="slide-title">9 Elemen Business Model Canvas (TaniData)</h2>
+        </div>
+        <span class="slide-tag">Klik kotak untuk detail statistik</span>
+      </div>
+
+      <div class="bmc-grid-container">
+        <!-- 8. Key Partners -->
+        <div class="bmc-cell cell-partners" onclick="showBmcDetail('partners')">
+          <span class="bmc-num">08</span>
+          <div class="bmc-cell-title">Key Partners</div>
+          <ul class="bmc-preview-list">
+            <li>Kelompok Tani & Koperasi</li>
+            <li>Penyuluh Pertanian (PPL)</li>
+            <li>BMKG & BPS (Data Api)</li>
+            <li>Dinas Pertanian Daerah</li>
+          </ul>
+        </div>
+
+        <!-- 7. Key Activities -->
+        <div class="bmc-cell cell-activities" onclick="showBmcDetail('activities')">
+          <span class="bmc-num">07</span>
+          <div class="bmc-cell-title">Key Activities</div>
+          <ul class="bmc-preview-list">
+            <li>Pengembangan aplikasi offline</li>
+            <li>Analisis data & model panen</li>
+            <li>Pendampingan kader poktan</li>
+          </ul>
+        </div>
+
+        <!-- 6. Key Resources -->
+        <div class="bmc-cell cell-resources" onclick="showBmcDetail('resources')">
+          <span class="bmc-num">06</span>
+          <div class="bmc-cell-title">Key Resources</div>
+          <ul class="bmc-preview-list">
+            <li>Platform Decision Support</li>
+            <li>Database histori budidaya</li>
+            <li>Tim statistik & agronomi</li>
+          </ul>
+        </div>
+
+        <!-- 2. Value Propositions -->
+        <div class="bmc-cell cell-value" onclick="showBmcDetail('value')">
+          <span class="bmc-num">02</span>
+          <div class="bmc-cell-title">Value Propositions</div>
+          <ul class="bmc-preview-list">
+            <li>Rekomendasi input berbasis data</li>
+            <li>Dashboard laba-rugi per musim</li>
+            <li>Solusi offline-first pedesaan</li>
+            <li>Agregasi data untuk poktan</li>
+          </ul>
+        </div>
+
+        <!-- 4. Customer Relationships -->
+        <div class="bmc-cell cell-relations" onclick="showBmcDetail('relations')">
+          <span class="bmc-num">04</span>
+          <div class="bmc-cell-title">Customer Relations</div>
+          <ul class="bmc-preview-list">
+            <li>Onboarding tatap muka poktan</li>
+            <li>Grup panduan WhatsApp kader</li>
+            <li>Laporan evaluasi pasca panen</li>
+          </ul>
+        </div>
+
+        <!-- 3. Channels -->
+        <div class="bmc-cell cell-channels" onclick="showBmcDetail('channels')">
+          <span class="bmc-num">03</span>
+          <div class="bmc-cell-title">Channels</div>
+          <ul class="bmc-preview-list">
+            <li>Web/Aplikasi PWA Ringan</li>
+            <li>Pertemuan mingguan poktan</li>
+            <li>Jaringan kantor BPP/Dinas</li>
+          </ul>
+        </div>
+
+        <!-- 1. Customer Segments -->
+        <div class="bmc-cell cell-segments" onclick="showBmcDetail('segments')">
+          <span class="bmc-num">01</span>
+          <div class="bmc-cell-title">Customer Segments</div>
+          <ul class="bmc-preview-list">
+            <li>Kelompok Tani Hortikultura</li>
+            <li>Koperasi Agribisnis</li>
+            <li>Penyuluh & Dinas Pertanian</li>
+            <li>Perusahaan CSR Pertanian</li>
+          </ul>
+        </div>
+
+        <!-- 9. Cost Structure -->
+        <div class="bmc-cell cell-cost" onclick="showBmcDetail('cost')">
+          <span class="bmc-num">09</span>
+          <div class="bmc-cell-title">Cost Structure</div>
+          <ul class="bmc-preview-list">
+            <li>Server cloud & database ringan | Biaya operasional pendampingan lapangan poktan | Honor tim agronomi & analis data</li>
+          </ul>
+        </div>
+
+        <!-- 5. Revenue Streams -->
+        <div class="bmc-cell cell-revenue" onclick="showBmcDetail('revenue')">
+          <span class="bmc-num">05</span>
+          <div class="bmc-cell-title">Revenue Streams</div>
+          <ul class="bmc-preview-list">
+            <li>Langganan Poktan (Rp150k-300k/bln) | Lisensi analitik B2G Pemda | Biaya integrasi program CSR off-taker</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bmc-detail-box" id="bmcDetailBox">
+        <h4 id="detailBoxTitle">Detail Elemen BMC</h4>
+        <p id="detailBoxContent">Pilih salah satu kotak di atas untuk melihat justifikasi kuantitatif dan rencana implementasinya.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: SIMULATOR INTERAKTIF EFISIENSI INPUT & HASIL PANEN -->
+    <section class="slide" id="slide-8">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah 07 • Lab Simulasi</span>
+          <h2 class="slide-title">Simulasi Keputusan Input vs Hasil Panen</h2>
+        </div>
+        <span class="slide-tag">Interactive DSS Model</span>
+      </div>
+
+      <div class="sim-container">
+        <div class="sim-controls">
+          <h3 style="color:#fff;">Uji Skenario Budidaya (Contoh: Cabai Merah 1 Ha)</h3>
+          
+          <div class="control-group">
+            <label><span>Dosis Pupuk NPK Tambahan (kg/ha):</span> <strong id="lblPupuk" style="color:#34d399;">250 kg</strong></label>
+            <input type="range" min="100" max="600" step="25" value="250" class="slider-input" id="rngPupuk" oninput="runTaniSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Kelengkapan Catatan Budidaya (%):</span> <strong id="lblCatatan" style="color:#38bdf8;">70%</strong></label>
+            <input type="range" min="20" max="100" step="10" value="70" class="slider-input" id="rngCatatan" oninput="runTaniSim()">
+          </div>
+
+          <div class="control-group">
+            <label><span>Adaptasi Peringatan Cuaca BMKG:</span> <strong id="lblCuaca" style="color:var(--accent);">Aktif (Optimal)</strong></label>
+            <input type="range" min="0" max="1" step="1" value="1" class="slider-input" id="rngCuaca" oninput="runTaniSim()">
+          </div>
+        </div>
+
+        <div class="sim-result">
+          <span style="font-size:0.85rem; color:var(--text-sub); text-transform:uppercase;">Estimasi Hasil Panen Bersih</span>
+          <div class="sim-res-val" id="resYield">7,85 Ton / Ha</div>
+
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span>Estimasi Biaya Input:</span>
+              <strong id="resCost" style="color:#f87171;">Rp 18.500.000</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span>Potensi Penghematan Pemupukan:</span>
+              <strong id="resSaving" style="color:#34d399;">Rp 3.200.000 (15%)</strong>
+            </div>
+            <div style="font-size:0.8rem; color:#94a3b8; margin-top:8px;" id="resNote">
+              *Rekomendasi TaniData mencegah over-fertilization berlebih yang tidak menambah tonase panen secara linear (Law of Diminishing Returns).
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: ROADMAP VALIDASI MENJU PROPOSAL FINAL -->
+    <section class="slide" id="slide-9">
+      <div class="slide-header">
+        <div>
+          <span class="slide-step">Langkah Terakhir • Rencana Aksi</span>
+          <h2 class="slide-title">Roadmap Validasi Lapangan Menuju Lomba BMC</h2>
+        </div>
+        <span class="slide-tag">Action Plan Polstat STIS</span>
+      </div>
+
+      <div class="grid-3col">
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 1</div>
+          <h3>Wawancara Lapangan (5–10 Poktan)</h3>
+          <p>Kunjungi 1 kelompok tani cabai/hortikultura. Verifikasi apakah ketua poktan saat ini mencatat jadwal tanam di buku kas atau spreadsheet dan ukur waktu yang terbuang.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 2</div>
+          <h3>Uji WTP & Prototipe Spreadsheet</h3>
+          <p>Tunjukkan mockup laporan ringkasan biaya budidaya mingguan. Tanyakan apakah poktan bersedia membayar Rp150.000/bln bila sistem menghemat biaya pupuk hingga 15%.</p>
+        </div>
+
+        <div class="card-panel">
+          <div style="color:var(--accent); font-weight:800; font-size:1.5rem; margin-bottom:0.4rem;">Fase 3</div>
+          <h3>Penyusunan Proposal BMC Final</h3>
+          <p>Masukkan metrik validasi primer ke elemen Value Propositions & Customer Segments sesuai panduan resmi lomba Dies Natalis ke-68 Polstat STIS.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:2rem; text-align:center;">
+        <a href="konsep-2-sisalaku.html" class="back-hub" style="background:var(--primary); color:#fff; padding:10px 20px; font-size:0.95rem;">
+          Lanjut ke Konsep 2: SisaLaku (Kuliner) →
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 9;
+
+    function showSlide(index) {
+      if (index < 1 || index > totalSlides) return;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide').forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+
+      document.getElementById('slideIndicator').textContent = `Slide ${currentSlide} / ${totalSlides}`;
+      document.getElementById('progressBar').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      
+      document.getElementById('prevBtn').disabled = (currentSlide === 1);
+      document.getElementById('nextBtn').disabled = (currentSlide === totalSlides);
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) showSlide(currentSlide - 1);
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (document.body.classList.contains('doc-mode')) return;
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        showSlide(1);
+      } else if (e.key === 'End') {
+        showSlide(totalSlides);
+      }
+    });
+
+    // Toggle Document Mode
+    function toggleViewMode() {
+      document.body.classList.toggle('doc-mode');
+      const isDoc = document.body.classList.contains('doc-mode');
+      document.getElementById('viewToggleBtn').textContent = isDoc ? '🖥️ Mode Slide' : '📄 Mode Dokumen';
+    }
+
+    // Interactive BMC Details
+    const bmcDetails = {
+      segments: {
+        title: "1. Customer Segments (Didukung Data Statistik)",
+        content: "Data Sensus Pertanian 2023 mencatat 53,16% petani belum terjamah teknologi digital. Target awal difokuskan pada Kelompok Tani (Poktan) hortikultura beranggotakan 20-50 petani di sentra komoditas bernilai tinggi (cabai, bawang merah, tomat) yang memiliki kas operasional poktan dan didampingi PPL aktif."
+      },
+      value: {
+        title: "2. Value Propositions",
+        content: "Memberikan rekomendasi budidaya transparan (explainable) yang menghubungkan riwayat input dengan hasil panen, peringatan cuaca BMKG terintegrasi, fitur offline-first untuk wilayah blank spot, serta penghematan biaya pupuk 10-20% tanpa menurunkan produktivitas."
+      },
+      channels: {
+        title: "3. Channels",
+        content: "Aplikasi PWA ringan via smartphone kader tani, bot WhatsApp untuk notifikasi ringkas cuaca/jadwal tanam, serta forum rembug tani bulanan bekerja sama dengan Balai Penyuluhan Pertanian (BPP)."
+      },
+      relations: {
+        title: "4. Customer Relationships",
+        content: "Pendampingan langsung tatap muka (human-in-the-loop) melalui pelatihan kader digital poktan, tutorial visual bebas jargon rumit, dan evaluasi capaian hasil panen bersama penyuluh pasca-musim."
+      },
+      revenue: {
+        title: "5. Revenue Streams",
+        content: "Langganan B2B kelompok tani (Rp150.000–Rp300.000/poktan/bulan), lisensi agregat dashboard B2G bagi Dinas Pertanian Kabupaten, dan paket kemitraan CSR dengan perusahaan agribisnis/off-taker."
+      },
+      resources: {
+        title: "6. Key Resources",
+        content: "Platform algoritma Decision Support System, database historis budidaya agronomis, tim statistik/analis data, pakar agronomi mitra, dan jaringan penyuluh lapangan."
+      },
+      activities: {
+        title: "7. Key Activities",
+        content: "Pengembangan software offline-first, pemodelan statistik regresi input-yield, validasi kurva respon pupuk bersama agronom, pemeliharaan data cuaca BMKG, dan pelatihan komunitas petani."
+      },
+      partners: {
+        title: "8. Key Partners",
+        content: "Kelompok Tani, BPP dan Penyuluh Pertanian Lapangan (PPL), Badan Pusat Statistik (BPS) untuk data statistik acuan, BMKG untuk data iklim real-time, serta Fakultas Pertanian perguruan tinggi."
+      },
+      cost: {
+        title: "9. Cost Structure",
+        content: "Pengembangan web/mobile, infrastruktur cloud database terenkripsi, honor konsultan agronomi dan analis data, logistik pelatihan lapangan poktan, serta operasional layanan pelanggan."
+      }
+    };
+
+    function showBmcDetail(key) {
+      document.querySelectorAll('.bmc-cell').forEach(c => c.classList.remove('active-cell'));
+      event.currentTarget.classList.add('active-cell');
+
+      const box = document.getElementById('bmcDetailBox');
+      const data = bmcDetails[key];
+      if (data) {
+        document.getElementById('detailBoxTitle').textContent = data.title;
+        document.getElementById('detailBoxContent').textContent = data.content;
+        box.classList.add('show');
+      }
+    }
+
+    // Simulator Logic
+    function runTaniSim() {
+      const pupuk = parseInt(document.getElementById('rngPupuk').value);
+      const catatan = parseInt(document.getElementById('rngCatatan').value);
+      const cuaca = parseInt(document.getElementById('rngCuaca').value);
+
+      document.getElementById('lblPupuk').textContent = pupuk + " kg";
+      document.getElementById('lblCatatan').textContent = catatan + "%";
+      document.getElementById('lblCuaca').textContent = cuaca === 1 ? "Aktif (Optimal)" : "Tidak Aktif";
+
+      // Non-linear diminishing returns model
+      let baseYield = 4.5;
+      let pupukEffect = (pupuk * 0.015) - (Math.pow(pupuk, 2) * 0.000015);
+      let noteEffect = (catatan / 100) * 1.4;
+      let weatherBonus = (cuaca === 1) ? 1.1 : 0.8;
+
+      let estYield = (baseYield + pupukEffect + noteEffect) * weatherBonus;
+      if (estYield < 3.0) estYield = 3.0;
+
+      let costPupuk = pupuk * 15000;
+      let costTotal = 12000000 + costPupuk;
+
+      let saving = (pupuk > 300) ? ((pupuk - 300) * 15000) : 1500000;
+
+      document.getElementById('resYield').textContent = estYield.toFixed(2) + " Ton / Ha";
+      document.getElementById('resCost').textContent = "Rp " + costTotal.toLocaleString('id-ID');
+      document.getElementById('resSaving').textContent = "Rp " + saving.toLocaleString('id-ID') + " (" + Math.round((saving/costTotal)*100) + "%)";
+    }
+
+    // Init
+    showSlide(1);
+    runTaniSim();
+  </script>
+</body>
+</html>
